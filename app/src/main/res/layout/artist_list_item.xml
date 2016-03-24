@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="140"
+    android:layout_height="140dp"
     android:padding="16dp">
 
     <ImageView
         android:id="@+id/smallCover"
-        android:layout_width="108"
-        android:layout_height="108"
+        android:layout_width="108dp"
+        android:layout_height="108dp"
         android:src="@android:mipmap/sym_def_app_icon" />
 
     <TextView
@@ -46,4 +46,11 @@
         android:text="genres"
         android:textColor="@color/grayText"
         android:textSize="14sp" />
+
+    <ProgressBar
+        android:indeterminate="true"
+        android:id="@+id/progressBar"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </RelativeLayout>

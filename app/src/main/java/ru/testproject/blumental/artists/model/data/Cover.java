@@ -1,4 +1,4 @@
-package ru.testproject.blumental.artists.model;
+package ru.testproject.blumental.artists.model.data;
 
 /**
  * POJO for URLs to covers.

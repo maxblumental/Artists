@@ -14,6 +14,7 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
 
     public void swapCursor(final Cursor cursor)
     {
+        this.cursor.close();
         this.cursor = cursor;
         this.notifyDataSetChanged();
     }
