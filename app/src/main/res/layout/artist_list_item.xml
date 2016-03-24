@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="140"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/smallCover"
+        android:layout_width="108"
+        android:layout_height="108"
+        android:src="@android:mipmap/sym_def_app_icon" />
+
+    <TextView
+        android:id="@+id/artistName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/smallCover"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@+id/smallCover"
+        android:layout_toRightOf="@+id/smallCover"
+        android:paddingTop="10dp"
+        android:text="Artist's Name"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/albumSongNums"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/smallCover"
+        android:layout_alignLeft="@+id/artistName"
+        android:layout_alignStart="@+id/artistName"
+        android:text="x albums, y songs"
+        android:textColor="@color/grayText"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/genres"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/artistName"
+        android:layout_alignStart="@+id/artistName"
+        android:layout_below="@+id/artistName"
+        android:layout_marginTop="8dp"
+        android:text="genres"
+        android:textColor="@color/grayText"
+        android:textSize="14sp" />
+</RelativeLayout>
