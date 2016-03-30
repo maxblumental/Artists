@@ -12,11 +12,11 @@ public class ArtistTable {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_ARTIST_NAME = "artist_name";
     public static final String COLUMN_GENRES = "genres";
-    public static final String COLUMN_TRACK_NUMBER = "song_number";
+    public static final String COLUMN_TRACK_NUMBER = "track_number";
     public static final String COLUMN_ALBUM_NUMBER = "album_number";
     public static final String COLUMN_COVER_URL = "cover_url";
     public static final String COLUMN_SMALL_COVER_URL = "small_cover_url";
-    public static final String COLUMN_BIOGRAPHY = "small_cover_url";
+    public static final String COLUMN_BIOGRAPHY = "biography";
 
     // Database creation SQL statement
     private static final String DATABASE_CREATE = "create table "
@@ -26,9 +26,9 @@ public class ArtistTable {
             + COLUMN_GENRES + " text not null, "
             + COLUMN_TRACK_NUMBER + " integer, "
             + COLUMN_ALBUM_NUMBER + " integer, "
-            + COLUMN_COVER_URL + " text not null"
-            + COLUMN_SMALL_COVER_URL + " text not null"
-            + COLUMN_BIOGRAPHY + " text not null,"
+            + COLUMN_COVER_URL + " text not null, "
+            + COLUMN_SMALL_COVER_URL + " text not null, "
+            + COLUMN_BIOGRAPHY + " text not null"
             + ");";
 
     public static void onCreate(SQLiteDatabase database) {

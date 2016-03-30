@@ -7,7 +7,8 @@ import ru.testproject.blumental.artists.view.View;
  * bvmaks@gmail.com
  */
 public interface Presenter {
+    //todo: bind lifecycle
     void onCreate(View view);
     void onResume();
-    void onPause();
+    void onStop();
 }

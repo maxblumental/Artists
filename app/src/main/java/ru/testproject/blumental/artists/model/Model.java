@@ -1,7 +1,10 @@
 package ru.testproject.blumental.artists.model;
 
+import android.content.Context;
+
 import java.util.List;
 
+import ru.testproject.blumental.artists.model.data.ArtistDTO;
 import rx.Observable;
 
 /**
@@ -9,5 +12,6 @@ import rx.Observable;
  * bvmaks@gmail.com
  */
 public interface Model {
-    Observable<String> downloadPage(List<String> urls);
+    Observable<Void> downloadPage(Context context, List<ArtistDTO> artistDTOs);
+    Observable<Void> fetchData(Context context);
 }

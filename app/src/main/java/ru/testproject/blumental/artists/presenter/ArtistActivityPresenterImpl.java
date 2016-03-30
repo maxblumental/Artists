@@ -2,25 +2,31 @@ package ru.testproject.blumental.artists.presenter;
 
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import ru.testproject.blumental.artists.model.Model;
+import ru.testproject.blumental.artists.model.Utils;
+import ru.testproject.blumental.artists.model.data.ArtistDTO;
 import ru.testproject.blumental.artists.model.data.ArtistProvider;
 import ru.testproject.blumental.artists.model.data.db.ArtistTable;
+import ru.testproject.blumental.artists.other.App;
 import ru.testproject.blumental.artists.view.View;
 import ru.testproject.blumental.artists.view.activity.ArtistListActivity;
 import rx.Subscriber;
+import rx.Subscription;
 
 /**
  * Created by Maxim Blumental on 3/25/2016.
  * bvmaks@gmail.com
  */
-public class ArtistActivityPresenterImpl implements ArtistActivityPresenter {
+public class ArtistActivityPresenterImpl extends BasePresenter implements ArtistActivityPresenter {
 
     @Inject
     Model model;
@@ -36,61 +42,96 @@ public class ArtistActivityPresenterImpl implements ArtistActivityPresenter {
 
     @Override
     public void loadNextPage(Cursor cursor) {
-        List<String> urls = new ArrayList<>();
-        String url = cursor.getString(cursor.getColumnIndex(ArtistTable.COLUMN_SMALL_COVER_URL));
-        urls.add(url);
+        List<ArtistDTO> artistDTOs = new ArrayList<>();
+        artistDTOs.add(new ArtistDTO(cursor));
 
         int i = 1;
         while (i < 20 && cursor.moveToNext()) {
-            url = cursor.getString(cursor.getColumnIndex(ArtistTable.COLUMN_SMALL_COVER_URL));
-            urls.add(url);
+            artistDTOs.add(new ArtistDTO(cursor));
             i++;
         }
 
-        model.downloadPage(urls).subscribe(new Subscriber<String>() {
-            @Override
-            public void onCompleted() {
-                Cursor cursor = view.getContext().getContentResolver()
-                        .query(ArtistProvider.CONTENT_URI,
-                                new String[]{
-                                        ArtistTable.COLUMN_SMALL_COVER_URL,
-                                        ArtistTable.COLUMN_ALBUM_NUMBER,
-                                        ArtistTable.COLUMN_TRACK_NUMBER,
-                                        ArtistTable.COLUMN_ARTIST_NAME,
-                                        ArtistTable.COLUMN_GENRES
-                                }, null, null, null);
-                view.showArtists(cursor);
-            }
+        cursor.close();
 
-            @Override
-            public void onError(Throwable e) {
-                view.showToast(e.getMessage());
-            }
+        Subscription pageDownloadSubscription = model.downloadPage(view.getContext(), artistDTOs)
+                .subscribe(new Subscriber<Void>() {
+                    @Override
+                    public void onCompleted() {
+                        Cursor cursor = getCursorToDB();
+                        view.showArtists(cursor);
+                    }
 
-            @Override
-            public void onNext(String s) {
+                    @Override
+                    public void onError(Throwable e) {
+                        view.showToast(e.toString());
+                    }
 
-            }
-        });
+                    @Override
+                    public void onNext(Void aVoid) {
+
+                    }
+                });
+
+        addSubscription(pageDownloadSubscription);
+    }
+
+    private Cursor getCursorToDB() {
+        return view.getContext().getContentResolver()
+                .query(ArtistProvider.CONTENT_URI,
+                        new String[]{
+                                ArtistTable.COLUMN_SMALL_COVER_URL,
+                                ArtistTable.COLUMN_COVER_URL,
+                                ArtistTable.COLUMN_BIOGRAPHY,
+                                ArtistTable.COLUMN_ALBUM_NUMBER,
+                                ArtistTable.COLUMN_TRACK_NUMBER,
+                                ArtistTable.COLUMN_ARTIST_NAME,
+                                ArtistTable.COLUMN_GENRES
+                        }, null, null, null);
     }
 
     @Override
-    public Bitmap getSmallCoverBitmap(String name) {
+    public Bitmap getSmallCoverBitmap(String url) {
+        try {
+            File smallCoverFile = Utils.getSmallCoverFile(view.getContext(), url);
+            return BitmapFactory.decodeFile(smallCoverFile.getAbsolutePath());
+        } catch (MalformedURLException e) {
+            view.showToast(e.toString());
+        }
         return null;
     }
 
     @Override
+    public void fetchData() {
+        view.showProgress();
+        Subscription subscription = model.fetchData(view.getContext())
+                .subscribe(new Subscriber<Void>() {
+                    @Override
+                    public void onCompleted() {
+                        view.stopProgress();
+                        view.showArtists(getCursorToDB());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        view.showToast(e.toString());
+                    }
+
+                    @Override
+                    public void onNext(Void aVoid) {
+
+                    }
+                });
+        addSubscription(subscription);
+    }
+
+    @Override
     public void onCreate(View view) {
+        App.getComponent().inject(this);
         this.view = (ArtistListActivity) view;
     }
 
     @Override
     public void onResume() {
-
-    }
-
-    @Override
-    public void onPause() {
 
     }
 }

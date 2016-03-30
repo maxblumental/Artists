@@ -8,7 +8,7 @@ package ru.testproject.blumental.artists.model.data;
  * bvmaks@gmail.com
  */
 public class Artist {
-    private String id;
+    private int id;
 
     private Cover cover;
 
@@ -18,17 +18,17 @@ public class Artist {
 
     private String link;
 
-    private String albums;
+    private int albumNumber;
 
     private String name;
 
-    private String tracks;
+    private int trackNumber;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -64,12 +64,12 @@ public class Artist {
         this.link = link;
     }
 
-    public String getAlbums() {
-        return albums;
+    public int getAlbumNumber() {
+        return albumNumber;
     }
 
-    public void setAlbums(String albums) {
-        this.albums = albums;
+    public void setAlbumNumber(int albumNumber) {
+        this.albumNumber = albumNumber;
     }
 
     public String getName() {
@@ -80,12 +80,12 @@ public class Artist {
         this.name = name;
     }
 
-    public String getTracks() {
-        return tracks;
+    public int getTrackNumber() {
+        return trackNumber;
     }
 
-    public void setTracks(String tracks) {
-        this.tracks = tracks;
+    public void setTrackNumber(int trackNumber) {
+        this.trackNumber = trackNumber;
     }
 
     @Override
@@ -95,8 +95,8 @@ public class Artist {
                 + ", genres = " + genres
                 + ", description = " + description
                 + ", link = " + link
-                + ", albums = " + albums
+                + ", albumNumber = " + albumNumber
                 + ", name = " + name
-                + ", tracks = " + tracks + "]";
+                + ", trackNumber = " + trackNumber + "]";
     }
 }

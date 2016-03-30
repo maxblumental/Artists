@@ -10,4 +10,6 @@ import ru.testproject.blumental.artists.view.View;
  */
 public interface ArtistListView extends View {
     void showArtists(Cursor cursor);
+    void showProgress();
+    void stopProgress();
 }

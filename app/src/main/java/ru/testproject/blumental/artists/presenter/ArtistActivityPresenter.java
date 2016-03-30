@@ -10,5 +10,6 @@ import android.graphics.Bitmap;
 public interface ArtistActivityPresenter extends Presenter {
     boolean isSmallCoverLoaded(Cursor cursor);
     void loadNextPage(Cursor cursor);
-    Bitmap getSmallCoverBitmap(String name);
+    Bitmap getSmallCoverBitmap(String url);
+    void fetchData();
 }

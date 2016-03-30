@@ -13,7 +13,7 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import ru.testproject.blumental.artists.R;
-import ru.testproject.blumental.artists.model.data.db.ArtistTable;
+import ru.testproject.blumental.artists.model.data.ArtistDTO;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 
 /**
@@ -23,6 +23,7 @@ import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapter.ViewHolder> {
 
     private ArtistActivityPresenter presenter;
+    private boolean isLoadingPage = false;
 
     public ArtistListAdapter(ArtistActivityPresenter presenter) {
         this.presenter = presenter;
@@ -37,26 +38,31 @@ public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapt
 
     @Override
     public void onBindViewHolder(ViewHolder holder, Cursor cursor) {
-        if (!presenter.isSmallCoverLoaded(cursor)) {
-            holder.progressBar.setVisibility(View.VISIBLE);
-            presenter.loadNextPage(cursor);
+        if (isLoadingPage) {
             return;
         }
 
+        if (!presenter.isSmallCoverLoaded(cursor)) {
+            holder.progressBar.setVisibility(View.VISIBLE);
+            presenter.loadNextPage(cursor);
+            isLoadingPage = true;
+            return;
+        }
+
+        isLoadingPage = false;
         holder.progressBar.setVisibility(View.GONE);
 
-        String name = cursor.getString(cursor.getColumnIndex(ArtistTable.COLUMN_ARTIST_NAME));
-        String genres = cursor.getString(cursor.getColumnIndex(ArtistTable.COLUMN_GENRES));
-        int trackNumber = cursor.getInt(cursor.getColumnIndex(ArtistTable.COLUMN_TRACK_NUMBER));
-        int albumNumber = cursor.getInt(cursor.getColumnIndex(ArtistTable.COLUMN_ALBUM_NUMBER));
+        ArtistDTO artistDTO = new ArtistDTO(cursor);
 
-        holder.artistName.setText(name);
-        holder.genres.setText(genres);
+        holder.artistName.setText(artistDTO.getName());
+        holder.genres.setText(artistDTO.getGenres());
 
-        String songAlbumNums = String.format("%d albums, %d tracks", albumNumber, trackNumber);
+        String songAlbumNums = String.format("%d albums, %d tracks", artistDTO.getAlbumNumber(),
+                artistDTO.getTrackNumber());
         holder.albumSongNums.setText(songAlbumNums);
 
-        Bitmap bitmap = presenter.getSmallCoverBitmap(name);
+        String smallCoverUrl = artistDTO.getSmallCoverUrl();
+        Bitmap bitmap = presenter.getSmallCoverBitmap(smallCoverUrl);
         holder.smallCover.setImageBitmap(bitmap);
     }
 
