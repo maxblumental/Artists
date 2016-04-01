@@ -34,9 +34,13 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
     ArtistListActivity view;
 
     @Override
-    public boolean isSmallCoverLoaded(Cursor cursor) {
-        String name = cursor.getString(cursor.getColumnIndex(ArtistTable.COLUMN_ARTIST_NAME));
-        File file = new File(view.getContext().getFilesDir(), name);
+    public boolean isSmallCoverLoaded(int id) {
+        File file = null;
+        try {
+            file = Utils.getSmallCoverFile(view.getContext(), id);
+        } catch (MalformedURLException e) {
+            view.showToast(e.toString());
+        }
         return file.exists();
     }
 
@@ -51,14 +55,13 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
             i++;
         }
 
-        cursor.close();
+        //cursor.close();
 
         Subscription pageDownloadSubscription = model.downloadPage(view.getContext(), artistDTOs)
                 .subscribe(new Subscriber<Void>() {
                     @Override
                     public void onCompleted() {
-                        Cursor cursor = getCursorToDB();
-                        view.showArtists(cursor);
+                        view.showArtists(getCursorToDB());
                     }
 
                     @Override
@@ -85,14 +88,15 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
                                 ArtistTable.COLUMN_ALBUM_NUMBER,
                                 ArtistTable.COLUMN_TRACK_NUMBER,
                                 ArtistTable.COLUMN_ARTIST_NAME,
+                                ArtistTable.COLUMN_ARTIST_ID,
                                 ArtistTable.COLUMN_GENRES
                         }, null, null, null);
     }
 
     @Override
-    public Bitmap getSmallCoverBitmap(String url) {
+    public Bitmap getSmallCoverBitmap(int id) {
         try {
-            File smallCoverFile = Utils.getSmallCoverFile(view.getContext(), url);
+            File smallCoverFile = Utils.getSmallCoverFile(view.getContext(), id);
             return BitmapFactory.decodeFile(smallCoverFile.getAbsolutePath());
         } catch (MalformedURLException e) {
             view.showToast(e.toString());
@@ -122,6 +126,11 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
                     }
                 });
         addSubscription(subscription);
+    }
+
+    @Override
+    public void refresh() {
+        view.showArtists(getCursorToDB());
     }
 
     @Override

@@ -14,6 +14,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import ru.testproject.blumental.artists.R;
 import ru.testproject.blumental.artists.model.data.ArtistDTO;
+import ru.testproject.blumental.artists.model.data.db.ArtistTable;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 
 /**
@@ -38,11 +39,12 @@ public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapt
 
     @Override
     public void onBindViewHolder(ViewHolder holder, Cursor cursor) {
-        if (isLoadingPage) {
-            return;
-        }
+        int id = cursor.getInt(cursor.getColumnIndex(ArtistTable.COLUMN_ARTIST_ID));
 
-        if (!presenter.isSmallCoverLoaded(cursor)) {
+        if (!presenter.isSmallCoverLoaded(id)) {
+            if (isLoadingPage) {
+                return;
+            }
             holder.progressBar.setVisibility(View.VISIBLE);
             presenter.loadNextPage(cursor);
             isLoadingPage = true;
@@ -61,8 +63,7 @@ public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapt
                 artistDTO.getTrackNumber());
         holder.albumSongNums.setText(songAlbumNums);
 
-        String smallCoverUrl = artistDTO.getSmallCoverUrl();
-        Bitmap bitmap = presenter.getSmallCoverBitmap(smallCoverUrl);
+        Bitmap bitmap = presenter.getSmallCoverBitmap(id);
         holder.smallCover.setImageBitmap(bitmap);
     }
 

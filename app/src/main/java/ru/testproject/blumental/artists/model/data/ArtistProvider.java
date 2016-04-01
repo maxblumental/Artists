@@ -175,8 +175,9 @@ public class ArtistProvider extends ContentProvider {
         String[] available = {
                 ArtistTable.COLUMN_ARTIST_NAME, ArtistTable.COLUMN_GENRES,
                 ArtistTable.COLUMN_TRACK_NUMBER, ArtistTable.COLUMN_ALBUM_NUMBER,
-                ArtistTable.COLUMN_ID, ArtistTable.COLUMN_COVER_URL,
-                ArtistTable.COLUMN_SMALL_COVER_URL, ArtistTable.COLUMN_BIOGRAPHY
+                ArtistTable.COLUMN_ARTIST_ID, ArtistTable.COLUMN_COVER_URL,
+                ArtistTable.COLUMN_SMALL_COVER_URL, ArtistTable.COLUMN_BIOGRAPHY,
+                ArtistTable.COLUMN_ID
         };
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<>(Arrays.asList(projection));

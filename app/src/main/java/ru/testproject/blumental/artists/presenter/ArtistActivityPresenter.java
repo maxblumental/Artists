@@ -8,8 +8,9 @@ import android.graphics.Bitmap;
  * bvmaks@gmail.com
  */
 public interface ArtistActivityPresenter extends Presenter {
-    boolean isSmallCoverLoaded(Cursor cursor);
+    boolean isSmallCoverLoaded(int id);
     void loadNextPage(Cursor cursor);
-    Bitmap getSmallCoverBitmap(String url);
+    Bitmap getSmallCoverBitmap(int id);
     void fetchData();
+    void refresh();
 }

@@ -15,6 +15,7 @@ public class ArtistDTO {
     private String genres;
     private int albumNumber;
     private int trackNumber;
+    private int artistId;
     private String biography;
 
     public ArtistDTO(Cursor cursor) {
@@ -24,7 +25,12 @@ public class ArtistDTO {
         genres = cursor.getString(cursor.getColumnIndex(ArtistTable.COLUMN_GENRES));
         albumNumber = cursor.getInt(cursor.getColumnIndex(ArtistTable.COLUMN_ALBUM_NUMBER));
         trackNumber = cursor.getInt(cursor.getColumnIndex(ArtistTable.COLUMN_TRACK_NUMBER));
+        artistId = cursor.getInt(cursor.getColumnIndex(ArtistTable.COLUMN_ARTIST_ID));
         biography = cursor.getString(cursor.getColumnIndex(ArtistTable.COLUMN_BIOGRAPHY));
+    }
+
+    public int getArtistId() {
+        return artistId;
     }
 
     public String getSmallCoverUrl() {

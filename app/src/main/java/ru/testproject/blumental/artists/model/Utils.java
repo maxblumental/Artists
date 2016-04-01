@@ -16,18 +16,16 @@ public class Utils {
     private static String SMALL_COVER_DIR = "small_covers";
     private static String COVER_DIR = "covers";
 
-    public static File getSmallCoverFile(Context context, String url) throws MalformedURLException {
-        URL coverUrl = new URL(url);
+    public static File getSmallCoverFile(Context context, int id) throws MalformedURLException {
         return new File(context.getFilesDir()
                 + File.separator + SMALL_COVER_DIR
-                + File.separator + coverUrl.getFile());
+                + File.separator + Integer.toString(id) + "_small");
     }
 
-    public static File getCoverFile(Context context, String url) throws MalformedURLException {
-        URL coverUrl = new URL(url);
+    public static File getCoverFile(Context context, String name) throws MalformedURLException {
         return new File(context.getFilesDir()
                 + File.separator + COVER_DIR
-                + File.separator + coverUrl.getFile());
+                + File.separator + name);
     }
 
     public static String getStringFromAssetsFile(Context context, String filename) {

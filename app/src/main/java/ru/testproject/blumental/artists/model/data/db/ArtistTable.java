@@ -10,6 +10,7 @@ import android.util.Log;
 public class ArtistTable {
     public static final String ARTIST_TABLE = "artist_table";
     public static final String COLUMN_ID = "_id";
+    public static final String COLUMN_ARTIST_ID = "artist_id";
     public static final String COLUMN_ARTIST_NAME = "artist_name";
     public static final String COLUMN_GENRES = "genres";
     public static final String COLUMN_TRACK_NUMBER = "track_number";
@@ -22,6 +23,7 @@ public class ArtistTable {
     private static final String DATABASE_CREATE = "create table "
             + ARTIST_TABLE + "( "
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + COLUMN_ARTIST_ID + " integer, "
             + COLUMN_ARTIST_NAME + " text not null , "
             + COLUMN_GENRES + " text not null, "
             + COLUMN_TRACK_NUMBER + " integer, "

@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -51,9 +52,22 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
 
         App.getComponent().inject(this);
 
+        artistList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ArtistListAdapter(presenter);
         artistList.setAdapter(adapter);
         presenter.onCreate(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        presenter.onStop();
+        super.onStop();
     }
 
     @Override
@@ -72,6 +86,9 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.fetch) {
+            presenter.fetchData();
             return true;
         }
 
@@ -105,7 +122,7 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
 
     @Override
     public void onRefresh() {
-        presenter.fetchData();
+        presenter.refresh();
     }
 
     @Override

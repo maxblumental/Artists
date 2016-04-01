@@ -25,7 +25,6 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.exceptions.Exceptions;
-import rx.functions.Func1;
 
 /**
  * Created by Maxim Blumental on 3/30/2016.
@@ -46,23 +45,25 @@ public class ModelImpl implements Model {
     Scheduler uiScheduler;
 
     @Override
-    public Observable<Void> downloadPage(final Context context, List<ArtistDTO> artistDTOs) {
-        return Observable.from(artistDTOs).map(new Func1<ArtistDTO, Void>() {
+    public Observable<Void> downloadPage(final Context context, final List<ArtistDTO> artistDTOs) {
+        return Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
-            public Void call(ArtistDTO artistDTO) {
-                try {
-                    URL url = new URL(artistDTO.getSmallCoverUrl());
-                    File smallCoverFile =
-                            Utils.getSmallCoverFile(context, artistDTO.getSmallCoverUrl());
-                    FileUtils.copyURLToFile(url, smallCoverFile);
-                } catch (IOException e) {
-                    Exceptions.propagate(e);
+            public void call(Subscriber<? super Void> subscriber) {
+                for (ArtistDTO artistDTO : artistDTOs) {
+                    try {
+                        URL url = new URL(artistDTO.getSmallCoverUrl());
+                        File smallCoverFile =
+                                Utils.getSmallCoverFile(context, artistDTO.getArtistId());
+                        FileUtils.copyURLToFile(url, smallCoverFile);
+                    } catch (IOException e) {
+                        Exceptions.propagate(e);
+                    }
                 }
-                return null;
+                subscriber.onCompleted();
             }
         })
-                .subscribeOn(uiScheduler)
-                .observeOn(ioScheduler);
+                .subscribeOn(ioScheduler)
+                .observeOn(uiScheduler);
     }
 
     @Override
@@ -79,7 +80,7 @@ public class ModelImpl implements Model {
                     contentValues.put(ArtistTable.COLUMN_ALBUM_NUMBER, artist.getAlbumNumber());
                     contentValues.put(ArtistTable.COLUMN_TRACK_NUMBER, artist.getTrackNumber());
                     contentValues.put(ArtistTable.COLUMN_ARTIST_NAME, artist.getName());
-                    contentValues.put(ArtistTable.COLUMN_ID, artist.getId());
+                    contentValues.put(ArtistTable.COLUMN_ARTIST_ID, artist.getId());
                     contentValues.put(ArtistTable.COLUMN_BIOGRAPHY, artist.getDescription());
                     contentValues.put(ArtistTable.COLUMN_COVER_URL, artist.getCover().getBig());
                     contentValues.put(ArtistTable.COLUMN_SMALL_COVER_URL, artist.getCover().getSmall());
@@ -90,6 +91,8 @@ public class ModelImpl implements Model {
 
                 subscriber.onCompleted();
             }
-        });
+        })
+                .subscribeOn(ioScheduler)
+                .observeOn(uiScheduler);
     }
 }
