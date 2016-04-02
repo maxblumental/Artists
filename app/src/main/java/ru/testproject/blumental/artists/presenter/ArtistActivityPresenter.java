@@ -1,6 +1,5 @@
 package ru.testproject.blumental.artists.presenter;
 
-import android.database.Cursor;
 import android.graphics.Bitmap;
 
 /**
@@ -8,9 +7,13 @@ import android.graphics.Bitmap;
  * bvmaks@gmail.com
  */
 public interface ArtistActivityPresenter extends Presenter {
-    boolean isSmallCoverLoaded(int id);
-    void loadNextPage(Cursor cursor);
+    void loadFirstPage();
+
+    void loadNextPage(int offset);
+
     Bitmap getSmallCoverBitmap(int id);
+
     void fetchData();
+
     void refresh();
 }

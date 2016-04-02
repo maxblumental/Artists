@@ -45,16 +45,17 @@ public class ModelImpl implements Model {
     Scheduler uiScheduler;
 
     @Override
-    public Observable<Void> downloadPage(final Context context, final List<ArtistDTO> artistDTOs) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
+    public Observable<Integer> downloadPage(final Context context, final List<ArtistDTO> artistDTOs) {
+        return Observable.create(new Observable.OnSubscribe<Integer>() {
             @Override
-            public void call(Subscriber<? super Void> subscriber) {
+            public void call(Subscriber<? super Integer> subscriber) {
                 for (ArtistDTO artistDTO : artistDTOs) {
                     try {
                         URL url = new URL(artistDTO.getSmallCoverUrl());
                         File smallCoverFile =
                                 Utils.getSmallCoverFile(context, artistDTO.getArtistId());
                         FileUtils.copyURLToFile(url, smallCoverFile);
+                        subscriber.onNext(1);
                     } catch (IOException e) {
                         Exceptions.propagate(e);
                     }

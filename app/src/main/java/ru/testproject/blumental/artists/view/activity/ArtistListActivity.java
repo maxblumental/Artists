@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.inject.Inject;
@@ -26,8 +25,10 @@ import ru.testproject.blumental.artists.model.data.ArtistProvider;
 import ru.testproject.blumental.artists.other.App;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 import ru.testproject.blumental.artists.view.adapter.ArtistListAdapter;
+import ru.testproject.blumental.artists.view.adapter.EndlessScrollListener;
 
-public class ArtistListActivity extends AppCompatActivity implements ArtistListView, SwipeRefreshLayout.OnRefreshListener {
+public class ArtistListActivity extends AppCompatActivity
+        implements ArtistListView, SwipeRefreshLayout.OnRefreshListener {
 
     @Inject
     ArtistActivityPresenter presenter;
@@ -50,12 +51,24 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
+        refreshLayout.setOnRefreshListener(this);
+
         App.getComponent().inject(this);
+        presenter.onCreate(this);
 
         artistList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ArtistListAdapter(presenter);
         artistList.setAdapter(adapter);
-        presenter.onCreate(this);
+        artistList.addOnScrollListener(new EndlessScrollListener() {
+            @Override
+            public boolean onLoadMore(int offset) {
+                if (adapter.needMoreElements()) {
+                    presenter.loadNextPage(offset);
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -118,6 +131,11 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
     @Override
     public void stopProgress() {
         refreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void onNewPageLoaded(int newElementsCount) {
+        adapter.addNewElements(newElementsCount);
     }
 
     @Override

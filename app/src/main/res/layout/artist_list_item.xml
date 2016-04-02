@@ -46,11 +46,4 @@
         android:text="genres"
         android:textColor="@color/grayText"
         android:textSize="14sp" />
-
-    <ProgressBar
-        android:indeterminate="true"
-        android:id="@+id/progressBar"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 </RelativeLayout>

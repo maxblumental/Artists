@@ -19,6 +19,7 @@ import ru.testproject.blumental.artists.model.data.db.ArtistTable;
 import ru.testproject.blumental.artists.other.App;
 import ru.testproject.blumental.artists.view.View;
 import ru.testproject.blumental.artists.view.activity.ArtistListActivity;
+import ru.testproject.blumental.artists.view.adapter.ArtistListAdapter;
 import rx.Subscriber;
 import rx.Subscription;
 
@@ -34,31 +35,18 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
     ArtistListActivity view;
 
     @Override
-    public boolean isSmallCoverLoaded(int id) {
-        File file = null;
-        try {
-            file = Utils.getSmallCoverFile(view.getContext(), id);
-        } catch (MalformedURLException e) {
-            view.showToast(e.toString());
-        }
-        return file.exists();
-    }
-
-    @Override
-    public void loadNextPage(Cursor cursor) {
+    public void loadFirstPage() {
+        Cursor cursor = getCursorToDB();
         List<ArtistDTO> artistDTOs = new ArrayList<>();
-        artistDTOs.add(new ArtistDTO(cursor));
 
-        int i = 1;
-        while (i < 20 && cursor.moveToNext()) {
+        for (int i = 0; i < ArtistListAdapter.PAGE_SIZE && cursor.moveToNext(); i++) {
             artistDTOs.add(new ArtistDTO(cursor));
-            i++;
         }
 
-        //cursor.close();
+        cursor.close();
 
         Subscription pageDownloadSubscription = model.downloadPage(view.getContext(), artistDTOs)
-                .subscribe(new Subscriber<Void>() {
+                .subscribe(new Subscriber<Integer>() {
                     @Override
                     public void onCompleted() {
                         view.showArtists(getCursorToDB());
@@ -70,8 +58,42 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
                     }
 
                     @Override
-                    public void onNext(Void aVoid) {
+                    public void onNext(Integer i) {
+                    }
+                });
 
+        addSubscription(pageDownloadSubscription);
+    }
+
+    @Override
+    public void loadNextPage(int offset) {
+        Cursor cursor = getCursorToDB();
+        cursor.move(offset);
+        List<ArtistDTO> artistDTOs = new ArrayList<>();
+
+        for (int i = 0; i < ArtistListAdapter.PAGE_SIZE && cursor.moveToNext(); i++) {
+            artistDTOs.add(new ArtistDTO(cursor));
+        }
+        cursor.close();
+
+        Subscription pageDownloadSubscription = model.downloadPage(view.getContext(), artistDTOs)
+                .subscribe(new Subscriber<Integer>() {
+                    int newElementsCount = 0;
+
+                    @Override
+                    public void onCompleted() {
+                        view.onNewPageLoaded(newElementsCount);
+                        view.showArtists(getCursorToDB());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        view.showToast(e.toString());
+                    }
+
+                    @Override
+                    public void onNext(Integer i) {
+                        newElementsCount += i;
                     }
                 });
 
@@ -111,6 +133,7 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
                 .subscribe(new Subscriber<Void>() {
                     @Override
                     public void onCompleted() {
+                        loadFirstPage();
                         view.stopProgress();
                         view.showArtists(getCursorToDB());
                     }
@@ -131,6 +154,7 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
     @Override
     public void refresh() {
         view.showArtists(getCursorToDB());
+        view.stopProgress();
     }
 
     @Override

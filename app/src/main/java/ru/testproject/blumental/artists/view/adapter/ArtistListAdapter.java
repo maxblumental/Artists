@@ -7,14 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import ru.testproject.blumental.artists.R;
 import ru.testproject.blumental.artists.model.data.ArtistDTO;
-import ru.testproject.blumental.artists.model.data.db.ArtistTable;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 
 /**
@@ -24,35 +22,64 @@ import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapter.ViewHolder> {
 
     private ArtistActivityPresenter presenter;
-    private boolean isLoadingPage = false;
+    public final static int PAGE_SIZE = 15;
+    private int count = PAGE_SIZE;
+
+    private static final int NORMAL_TYPE = 0;
+    private static final int FOOTER_TYPE = 1;
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position + 1 == getItemCount()
+                && getItemCount() < super.getItemCount()) {
+            return FOOTER_TYPE;
+        }
+        return NORMAL_TYPE;
+    }
 
     public ArtistListAdapter(ArtistActivityPresenter presenter) {
         this.presenter = presenter;
     }
 
     @Override
+    public int getItemCount() {
+        return Math.min(count, super.getItemCount());
+    }
+
+    public boolean needMoreElements() {
+        return count < super.getItemCount();
+    }
+
+    public void addNewElements(int newElementsCount) {
+        count = Math.min(count + newElementsCount, super.getItemCount());
+    }
+
+    @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
+
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
+        if (viewType == FOOTER_TYPE) {
+            View footer = inflater
+                    .inflate(R.layout.loading_new_item, parent, false);
+            return new ViewHolder(footer, FOOTER_TYPE);
+        }
+
+        View view = inflater
                 .inflate(R.layout.artist_list_item, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(view, NORMAL_TYPE);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        if (getItemViewType(position) == FOOTER_TYPE) {
+            return;
+        }
+        super.onBindViewHolder(holder, position);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, Cursor cursor) {
-        int id = cursor.getInt(cursor.getColumnIndex(ArtistTable.COLUMN_ARTIST_ID));
-
-        if (!presenter.isSmallCoverLoaded(id)) {
-            if (isLoadingPage) {
-                return;
-            }
-            holder.progressBar.setVisibility(View.VISIBLE);
-            presenter.loadNextPage(cursor);
-            isLoadingPage = true;
-            return;
-        }
-
-        isLoadingPage = false;
-        holder.progressBar.setVisibility(View.GONE);
 
         ArtistDTO artistDTO = new ArtistDTO(cursor);
 
@@ -63,14 +90,11 @@ public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapt
                 artistDTO.getTrackNumber());
         holder.albumSongNums.setText(songAlbumNums);
 
-        Bitmap bitmap = presenter.getSmallCoverBitmap(id);
+        Bitmap bitmap = presenter.getSmallCoverBitmap(artistDTO.getArtistId());
         holder.smallCover.setImageBitmap(bitmap);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-
-        @Bind(R.id.progressBar)
-        ProgressBar progressBar;
 
         @Bind(R.id.smallCover)
         ImageView smallCover;
@@ -84,9 +108,11 @@ public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapt
         @Bind(R.id.albumSongNums)
         TextView albumSongNums;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, int viewType) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            if (viewType == NORMAL_TYPE) {
+                ButterKnife.bind(this, itemView);
+            }
         }
     }
 }

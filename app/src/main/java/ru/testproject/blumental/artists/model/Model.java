@@ -12,6 +12,7 @@ import rx.Observable;
  * bvmaks@gmail.com
  */
 public interface Model {
-    Observable<Void> downloadPage(Context context, List<ArtistDTO> artistDTOs);
+    Observable<Integer> downloadPage(Context context, List<ArtistDTO> artistDTOs);
+
     Observable<Void> fetchData(Context context);
 }
