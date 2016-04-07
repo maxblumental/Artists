@@ -1,7 +1,8 @@
 package ru.testproject.blumental.artists.view.activity;
 
-import android.database.Cursor;
+import java.util.List;
 
+import ru.testproject.blumental.artists.model.data.ArtistDTO;
 import ru.testproject.blumental.artists.view.View;
 
 /**
@@ -9,11 +10,13 @@ import ru.testproject.blumental.artists.view.View;
  * bvmaks@gmail.com
  */
 public interface ArtistListView extends View {
-    void showArtists(Cursor cursor);
-
-    void showProgress();
-
     void stopProgress();
 
     void onNewPageLoaded(int newElementsCount);
+
+    void showArtists(List<ArtistDTO> artists);
+
+    List<ArtistDTO> getPageDTOs(int offset);
+
+    void refresh();
 }

@@ -11,9 +11,5 @@ public interface ArtistActivityPresenter extends Presenter {
 
     void loadNextPage(int offset);
 
-    Bitmap getSmallCoverBitmap(int id);
-
-    void fetchData();
-
-    void refresh();
+    Bitmap getThumbnailBitmap(int id);
 }

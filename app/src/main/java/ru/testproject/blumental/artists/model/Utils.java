@@ -16,7 +16,7 @@ public class Utils {
     private static String SMALL_COVER_DIR = "small_covers";
     private static String COVER_DIR = "covers";
 
-    public static File getSmallCoverFile(Context context, int id) throws MalformedURLException {
+    public static File getThumbnail(Context context, int id) throws MalformedURLException {
         return new File(context.getFilesDir()
                 + File.separator + SMALL_COVER_DIR
                 + File.separator + Integer.toString(id) + "_small");

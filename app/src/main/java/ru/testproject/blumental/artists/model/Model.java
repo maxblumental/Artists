@@ -13,6 +13,4 @@ import rx.Observable;
  */
 public interface Model {
     Observable<Integer> downloadPage(Context context, List<ArtistDTO> artistDTOs);
-
-    Observable<Void> fetchData(Context context);
 }

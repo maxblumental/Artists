@@ -1,6 +1,5 @@
 package ru.testproject.blumental.artists.view.adapter;
 
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -19,9 +21,11 @@ import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
  * Created by Maxim Blumental on 3/24/2016.
  * bvmaks@gmail.com
  */
-public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapter.ViewHolder> {
+public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.ViewHolder> {
 
+    private List<ArtistDTO> artistDTOs;
     private ArtistActivityPresenter presenter;
+
     public final static int PAGE_SIZE = 15;
     private int count = PAGE_SIZE;
 
@@ -31,10 +35,14 @@ public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapt
     @Override
     public int getItemViewType(int position) {
         if (position + 1 == getItemCount()
-                && getItemCount() < super.getItemCount()) {
+                && getItemCount() < artistDTOs.size()) {
             return FOOTER_TYPE;
         }
         return NORMAL_TYPE;
+    }
+
+    public void setArtistDTOs(List<ArtistDTO> artistDTOs) {
+        this.artistDTOs = artistDTOs;
     }
 
     public ArtistListAdapter(ArtistActivityPresenter presenter) {
@@ -43,15 +51,15 @@ public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapt
 
     @Override
     public int getItemCount() {
-        return Math.min(count, super.getItemCount());
+        return Math.min(count, artistDTOs.size());
     }
 
     public boolean needMoreElements() {
-        return count < super.getItemCount();
+        return count < artistDTOs.size();
     }
 
     public void addNewElements(int newElementsCount) {
-        count = Math.min(count + newElementsCount, super.getItemCount());
+        count = Math.min(count + newElementsCount, artistDTOs.size());
     }
 
     @Override
@@ -72,32 +80,28 @@ public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapt
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (getItemViewType(position) == FOOTER_TYPE) {
-            return;
-        }
-        super.onBindViewHolder(holder, position);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, Cursor cursor) {
-
-        ArtistDTO artistDTO = new ArtistDTO(cursor);
+        ArtistDTO artistDTO = artistDTOs.get(position);
 
         holder.artistName.setText(artistDTO.getName());
         holder.genres.setText(artistDTO.getGenres());
 
-        String songAlbumNums = String.format("%d albums, %d tracks", artistDTO.getAlbumNumber(),
-                artistDTO.getTrackNumber());
-        holder.albumSongNums.setText(songAlbumNums);
+        String albumSongNumbers = String.format("%d albums, %d tracks",
+                artistDTO.getAlbumNumber(), artistDTO.getTrackNumber());
 
-        Bitmap bitmap = presenter.getSmallCoverBitmap(artistDTO.getArtistId());
-        holder.smallCover.setImageBitmap(bitmap);
+        holder.albumSongNumbers.setText(albumSongNumbers);
+
+        Bitmap bitmap = presenter.getThumbnailBitmap(artistDTO.getArtistId());
+        holder.thumbnail.setImageBitmap(bitmap);
+    }
+
+    public List<ArtistDTO> getPageDTOs(int offset) {
+        return new ArrayList<>(artistDTOs.subList(offset, offset + PAGE_SIZE));
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        @Bind(R.id.smallCover)
-        ImageView smallCover;
+        @Bind(R.id.thumbnail)
+        ImageView thumbnail;
 
         @Bind(R.id.artistName)
         TextView artistName;
@@ -106,7 +110,7 @@ public class ArtistListAdapter extends RecyclerViewCursorAdapter<ArtistListAdapt
         TextView genres;
 
         @Bind(R.id.albumSongNums)
-        TextView albumSongNums;
+        TextView albumSongNumbers;
 
         public ViewHolder(View itemView, int viewType) {
             super(itemView);
