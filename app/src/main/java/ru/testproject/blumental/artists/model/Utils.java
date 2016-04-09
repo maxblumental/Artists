@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * Created by Maxim Blumental on 3/30/2016.
@@ -22,10 +21,10 @@ public class Utils {
                 + File.separator + Integer.toString(id) + "_small");
     }
 
-    public static File getCoverFile(Context context, String name) throws MalformedURLException {
+    public static File getCoverFile(Context context, int id) throws MalformedURLException {
         return new File(context.getFilesDir()
                 + File.separator + COVER_DIR
-                + File.separator + name);
+                + File.separator + Integer.toString(id));
     }
 
     public static String getStringFromAssetsFile(Context context, String filename) {

@@ -12,4 +12,6 @@ public interface ArtistActivityPresenter extends Presenter {
     void loadNextPage(int offset);
 
     Bitmap getThumbnailBitmap(int id);
+
+    void loadArtistList();
 }

@@ -1,5 +1,7 @@
 package ru.testproject.blumental.artists.view.adapter;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,13 +11,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import ru.testproject.blumental.artists.R;
-import ru.testproject.blumental.artists.model.data.ArtistDTO;
+import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
+import ru.testproject.blumental.artists.view.activity.ArtistInfoActivity;
 
 /**
  * Created by Maxim Blumental on 3/24/2016.
@@ -23,10 +27,11 @@ import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
  */
 public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.ViewHolder> {
 
-    private List<ArtistDTO> artistDTOs;
+    private Context context;
+    private List<Artist> artists;
     private ArtistActivityPresenter presenter;
 
-    public final static int PAGE_SIZE = 15;
+    public final static int PAGE_SIZE = 30;
     private int count = PAGE_SIZE;
 
     private static final int NORMAL_TYPE = 0;
@@ -35,31 +40,34 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
     @Override
     public int getItemViewType(int position) {
         if (position + 1 == getItemCount()
-                && getItemCount() < artistDTOs.size()) {
+                && getItemCount() < artists.size()) {
             return FOOTER_TYPE;
         }
         return NORMAL_TYPE;
     }
 
-    public void setArtistDTOs(List<ArtistDTO> artistDTOs) {
-        this.artistDTOs = artistDTOs;
+    public void setArtists(List<Artist> artists) {
+        this.artists = artists;
     }
 
-    public ArtistListAdapter(ArtistActivityPresenter presenter) {
+    public ArtistListAdapter(Context context, ArtistActivityPresenter presenter) {
+        this.context = context;
         this.presenter = presenter;
     }
 
     @Override
     public int getItemCount() {
-        return Math.min(count, artistDTOs.size());
+        int realSize = artists == null ? 0 : artists.size();
+        return Math.min(count, realSize);
     }
 
     public boolean needMoreElements() {
-        return count < artistDTOs.size();
+        int realSize = artists == null ? 0 : artists.size();
+        return count < realSize;
     }
 
     public void addNewElements(int newElementsCount) {
-        count = Math.min(count + newElementsCount, artistDTOs.size());
+        count = Math.min(count + newElementsCount, artists.size());
     }
 
     @Override
@@ -80,22 +88,30 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        ArtistDTO artistDTO = artistDTOs.get(position);
+        if (getItemViewType(position) == FOOTER_TYPE) {
+            return;
+        }
 
-        holder.artistName.setText(artistDTO.getName());
-        holder.genres.setText(artistDTO.getGenres());
+        Artist artist = artists.get(position);
 
-        String albumSongNumbers = String.format("%d albums, %d tracks",
-                artistDTO.getAlbumNumber(), artistDTO.getTrackNumber());
+        holder.artistName.setText(artist.getName());
+
+        String[] genres = artist.getGenres();
+        String text = Arrays.toString(genres);
+        holder.genres.setText(text.substring(1, text.length() - 1));
+
+        String albumSongNumbers = String.format(context.getString(R.string.numbers_in_list),
+                artist.getAlbums(), artist.getTracks());
 
         holder.albumSongNumbers.setText(albumSongNumbers);
 
-        Bitmap bitmap = presenter.getThumbnailBitmap(artistDTO.getArtistId());
+        Bitmap bitmap = presenter.getThumbnailBitmap(artist.getId());
         holder.thumbnail.setImageBitmap(bitmap);
     }
 
-    public List<ArtistDTO> getPageDTOs(int offset) {
-        return new ArrayList<>(artistDTOs.subList(offset, offset + PAGE_SIZE));
+    public List<Artist> getPage(int offset) {
+        int end = Math.min(offset + PAGE_SIZE, artists.size());
+        return new ArrayList<>(artists.subList(offset, end));
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -112,11 +128,24 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
         @Bind(R.id.albumSongNums)
         TextView albumSongNumbers;
 
-        public ViewHolder(View itemView, int viewType) {
+        public ViewHolder(final View itemView, int viewType) {
             super(itemView);
             if (viewType == NORMAL_TYPE) {
                 ButterKnife.bind(this, itemView);
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, ArtistInfoActivity.class);
+
+                        int id = ViewHolder.this.getAdapterPosition();
+                        Artist value = artists.get(id);
+                        intent.putExtra(ArtistInfoActivity.ARTIST_KEY, value);
+
+                        context.startActivity(intent);
+                    }
+                });
             }
+
         }
     }
 }

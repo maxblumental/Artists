@@ -6,6 +6,8 @@ import dagger.Module;
 import dagger.Provides;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenterImpl;
+import ru.testproject.blumental.artists.presenter.ArtistInfoPresenter;
+import ru.testproject.blumental.artists.presenter.ArtistInfoPresenterImpl;
 
 /**
  * Created by Maxim Blumental on 3/30/2016.
@@ -17,5 +19,11 @@ public class ViewModule {
     @Singleton
     ArtistActivityPresenter getArtistActivityPresenter() {
         return new ArtistActivityPresenterImpl();
+    }
+
+    @Provides
+    @Singleton
+    ArtistInfoPresenter getArtistInfoPresenter() {
+        return new ArtistInfoPresenterImpl();
     }
 }

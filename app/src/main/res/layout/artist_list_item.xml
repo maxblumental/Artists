@@ -31,7 +31,7 @@
         android:layout_alignBottom="@+id/thumbnail"
         android:layout_alignLeft="@+id/artistName"
         android:layout_alignStart="@+id/artistName"
-        android:text="x albumNumber, y songs"
+        android:text="x albums, y songs"
         android:textColor="@color/grayText"
         android:textSize="14sp" />
 

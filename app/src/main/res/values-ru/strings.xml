@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Исполнители</string>
+    <string name="action_settings">Настройки</string>
+    <string name="biography_title">Биография</string>
+    <string name="numbers_in_info">%1$d альбомов  •  %2$d песен</string>
+    <string name="numbers_in_list">%1$s альбомов, %2$s песен</string>
+</resources>

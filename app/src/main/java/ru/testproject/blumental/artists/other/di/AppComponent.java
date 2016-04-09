@@ -5,7 +5,9 @@ import javax.inject.Singleton;
 import dagger.Component;
 import ru.testproject.blumental.artists.model.ModelImpl;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenterImpl;
+import ru.testproject.blumental.artists.presenter.ArtistInfoPresenterImpl;
 import ru.testproject.blumental.artists.presenter.BasePresenter;
+import ru.testproject.blumental.artists.view.activity.ArtistInfoActivity;
 import ru.testproject.blumental.artists.view.activity.ArtistListActivity;
 
 /**
@@ -23,4 +25,8 @@ public interface AppComponent {
     void inject(ArtistActivityPresenterImpl presenter);
 
     void inject(ArtistListActivity activity);
+
+    void inject(ArtistInfoActivity activity);
+
+    void inject(ArtistInfoPresenterImpl presenter);
 }

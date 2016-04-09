@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 import ru.testproject.blumental.artists.model.Model;
 import ru.testproject.blumental.artists.model.Utils;
-import ru.testproject.blumental.artists.model.data.ArtistDTO;
+import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.other.App;
 import ru.testproject.blumental.artists.view.View;
 import ru.testproject.blumental.artists.view.activity.ArtistListActivity;
@@ -31,11 +31,12 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
 
     @Override
     public void loadFirstPage() {
-        List<ArtistDTO> artistDTOs = view.getPageDTOs(0);
-        Subscription pageDownloadSubscription = model.downloadPage(view.getContext(), artistDTOs)
+        List<Artist> artists = view.getPage(0);
+        Subscription pageDownloadSubscription = model.downloadPage(view.getContext(), artists)
                 .subscribe(new Subscriber<Integer>() {
                     @Override
                     public void onCompleted() {
+                        view.stopProgress();
                         view.refresh();
                     }
 
@@ -55,8 +56,8 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
 
     @Override
     public void loadNextPage(int offset) {
-        final List<ArtistDTO> artistDTOs = view.getPageDTOs(offset);
-        Subscription pageDownloadSubscription = model.downloadPage(view.getContext(), artistDTOs)
+        final List<Artist> artists = view.getPage(offset);
+        Subscription pageDownloadSubscription = model.downloadPage(view.getContext(), artists)
                 .subscribe(new Subscriber<Integer>() {
                     int newElementsCount = 0;
 
@@ -99,6 +100,31 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
 
     @Override
     public void onResume() {
+        //load JSON with artist list
+        view.showProgress();
+        loadArtistList();
+    }
 
+    @Override
+    public void loadArtistList() {
+        Subscription subscription = model.downloadArtistList()
+                .subscribe(new Subscriber<List<Artist>>() {
+                    @Override
+                    public void onCompleted() {
+                        loadFirstPage();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        view.showToast(e.toString());
+                    }
+
+                    @Override
+                    public void onNext(List<Artist> artists) {
+                        view.showArtists(artists);
+                    }
+                });
+
+        addSubscription(subscription);
     }
 }

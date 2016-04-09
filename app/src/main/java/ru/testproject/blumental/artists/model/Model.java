@@ -1,10 +1,11 @@
 package ru.testproject.blumental.artists.model;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import java.util.List;
 
-import ru.testproject.blumental.artists.model.data.ArtistDTO;
+import ru.testproject.blumental.artists.model.data.Artist;
 import rx.Observable;
 
 /**
@@ -12,5 +13,7 @@ import rx.Observable;
  * bvmaks@gmail.com
  */
 public interface Model {
-    Observable<Integer> downloadPage(Context context, List<ArtistDTO> artistDTOs);
+    Observable<Integer> downloadPage(Context context, List<Artist> artists);
+    Observable<List<Artist>> downloadArtistList();
+    Observable<Bitmap> downloadCover(Context context, Artist artist);
 }

@@ -2,7 +2,7 @@ package ru.testproject.blumental.artists.view.activity;
 
 import java.util.List;
 
-import ru.testproject.blumental.artists.model.data.ArtistDTO;
+import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.view.View;
 
 /**
@@ -14,9 +14,11 @@ public interface ArtistListView extends View {
 
     void onNewPageLoaded(int newElementsCount);
 
-    void showArtists(List<ArtistDTO> artists);
+    void showArtists(List<Artist> artists);
 
-    List<ArtistDTO> getPageDTOs(int offset);
+    void showProgress();
+
+    List<Artist> getPage(int offset);
 
     void refresh();
 }

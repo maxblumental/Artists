@@ -2,13 +2,14 @@ package ru.testproject.blumental.artists.view.activity;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.List;
@@ -18,14 +19,13 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import ru.testproject.blumental.artists.R;
-import ru.testproject.blumental.artists.model.data.ArtistDTO;
+import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.other.App;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 import ru.testproject.blumental.artists.view.adapter.ArtistListAdapter;
 import ru.testproject.blumental.artists.view.adapter.EndlessScrollListener;
 
-public class ArtistListActivity extends AppCompatActivity
-        implements ArtistListView, SwipeRefreshLayout.OnRefreshListener {
+public class ArtistListActivity extends AppCompatActivity implements ArtistListView {
 
     @Inject
     ArtistActivityPresenter presenter;
@@ -36,8 +36,8 @@ public class ArtistListActivity extends AppCompatActivity
     @Bind(R.id.artist_list)
     RecyclerView artistList;
 
-    @Bind(R.id.refreshLayout)
-    SwipeRefreshLayout refreshLayout;
+    @Bind(R.id.progressBar)
+    ProgressBar progressBar;
 
     private ArtistListAdapter adapter;
 
@@ -48,13 +48,11 @@ public class ArtistListActivity extends AppCompatActivity
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        refreshLayout.setOnRefreshListener(this);
-
         App.getComponent().inject(this);
         presenter.onCreate(this);
 
         artistList.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ArtistListAdapter(presenter);
+        adapter = new ArtistListAdapter(this, presenter);
         artistList.setAdapter(adapter);
         artistList.addOnScrollListener(new EndlessScrollListener() {
             @Override
@@ -108,7 +106,7 @@ public class ArtistListActivity extends AppCompatActivity
 
     @Override
     public void stopProgress() {
-        refreshLayout.setRefreshing(false);
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -117,22 +115,22 @@ public class ArtistListActivity extends AppCompatActivity
     }
 
     @Override
-    public void showArtists(List<ArtistDTO> artists) {
-        adapter.setArtistDTOs(artists);
+    public void showArtists(List<Artist> artists) {
+        adapter.setArtists(artists);
     }
 
     @Override
-    public List<ArtistDTO> getPageDTOs(int offset) {
-        return adapter.getPageDTOs(offset);
+    public void showProgress() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public List<Artist> getPage(int offset) {
+        return adapter.getPage(offset);
     }
 
     @Override
     public void refresh() {
         adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onRefresh() {
-
     }
 }

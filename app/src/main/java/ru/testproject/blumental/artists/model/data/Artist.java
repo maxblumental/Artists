@@ -1,13 +1,16 @@
 package ru.testproject.blumental.artists.model.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * POJO for deserialization
  * of information about one artist.
- * <p/>
+ * <p>
  * Created by Maxim Blumental on 3/24/2016.
  * bvmaks@gmail.com
  */
-public class Artist {
+public class Artist implements Parcelable {
     private int id;
 
     private Cover cover;
@@ -18,11 +21,34 @@ public class Artist {
 
     private String link;
 
-    private int albumNumber;
+    private int albums;
 
     private String name;
 
-    private int trackNumber;
+    private int tracks;
+
+    protected Artist(Parcel in) {
+        id = in.readInt();
+        cover = new Cover();
+        cover.setBig(in.readString());
+        genres = in.createStringArray();
+        albums = in.readInt();
+        tracks = in.readInt();
+        description = in.readString();
+        name = in.readString();
+    }
+
+    public static final Creator<Artist> CREATOR = new Creator<Artist>() {
+        @Override
+        public Artist createFromParcel(Parcel in) {
+            return new Artist(in);
+        }
+
+        @Override
+        public Artist[] newArray(int size) {
+            return new Artist[size];
+        }
+    };
 
     public int getId() {
         return id;
@@ -64,12 +90,12 @@ public class Artist {
         this.link = link;
     }
 
-    public int getAlbumNumber() {
-        return albumNumber;
+    public int getAlbums() {
+        return albums;
     }
 
-    public void setAlbumNumber(int albumNumber) {
-        this.albumNumber = albumNumber;
+    public void setAlbums(int albums) {
+        this.albums = albums;
     }
 
     public String getName() {
@@ -80,12 +106,12 @@ public class Artist {
         this.name = name;
     }
 
-    public int getTrackNumber() {
-        return trackNumber;
+    public int getTracks() {
+        return tracks;
     }
 
-    public void setTrackNumber(int trackNumber) {
-        this.trackNumber = trackNumber;
+    public void setTracks(int tracks) {
+        this.tracks = tracks;
     }
 
     @Override
@@ -95,8 +121,24 @@ public class Artist {
                 + ", genres = " + genres
                 + ", description = " + description
                 + ", link = " + link
-                + ", albumNumber = " + albumNumber
+                + ", albums = " + albums
                 + ", name = " + name
-                + ", trackNumber = " + trackNumber + "]";
+                + ", tracks = " + tracks + "]";
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(cover.getBig());
+        dest.writeStringArray(genres);
+        dest.writeInt(albums);
+        dest.writeInt(tracks);
+        dest.writeString(description);
+        dest.writeString(name);
     }
 }
