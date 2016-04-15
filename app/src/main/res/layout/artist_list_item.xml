@@ -4,21 +4,35 @@
     android:layout_height="140dp"
     android:padding="16dp">
 
-    <ImageView
-        android:id="@+id/thumbnail"
+    <RelativeLayout
+        android:id="@+id/thumbnailContainer"
         android:layout_width="108dp"
-        android:layout_height="108dp"
-        android:src="@android:mipmap/sym_def_app_icon" />
+        android:layout_height="108dp">
+
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="108dp"
+            android:layout_height="108dp"
+            android:src="@android:mipmap/sym_def_app_icon" />
+
+        <ProgressBar
+            android:id="@id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/artistName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/thumbnail"
+        android:layout_alignTop="@+id/thumbnailContainer"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        android:layout_toEndOf="@+id/thumbnail"
-        android:layout_toRightOf="@+id/thumbnail"
+        android:layout_toEndOf="@+id/thumbnailContainer"
+        android:layout_toRightOf="@+id/thumbnailContainer"
         android:paddingTop="10dp"
         android:text="Artist's Name"
         android:textColor="@android:color/black"
@@ -28,7 +42,7 @@
         android:id="@+id/albumSongNums"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/thumbnail"
+        android:layout_alignBottom="@+id/thumbnailContainer"
         android:layout_alignLeft="@+id/artistName"
         android:layout_alignStart="@+id/artistName"
         android:text="x albums, y songs"

@@ -7,11 +7,16 @@ import android.graphics.Bitmap;
  * bvmaks@gmail.com
  */
 public interface ArtistActivityPresenter extends Presenter {
-    void loadFirstPage();
-
-    void loadNextPage(int offset);
-
-    Bitmap getThumbnailBitmap(int id);
+    /**
+     * Get bitmap from the url.
+     * Returns the bitmap instantaneously
+     * if it is cached. Otherwise returns null
+     * and initiates download of the page
+     * to which the bitmap belongs.
+     *
+     * @param position of the element in the adapter.
+     */
+    Bitmap getBitmap(String url, int position);
 
     void loadArtistList();
 }

@@ -1,11 +1,16 @@
 package ru.testproject.blumental.artists.model;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Created by Maxim Blumental on 3/30/2016.
@@ -25,6 +30,39 @@ public class Utils {
         return new File(context.getFilesDir()
                 + File.separator + COVER_DIR
                 + File.separator + Integer.toString(id));
+    }
+
+    public static Bitmap downloadCover(URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            throw new IOException("Can't establish connection.");
+        }
+
+        InputStream inputStream = null;
+        ByteArrayOutputStream outputStream = null;
+        byte[] bytes;
+        try {
+            inputStream = connection.getInputStream();
+            outputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+
+            while ((len = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, len);
+            }
+
+            bytes = outputStream.toByteArray();
+            return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        } finally {
+            connection.disconnect();
+            if (outputStream != null) {
+                outputStream.close();
+            }
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        }
     }
 
     public static String getStringFromAssetsFile(Context context, String filename) {

@@ -1,16 +1,15 @@
 package ru.testproject.blumental.artists.presenter;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
-import java.io.File;
-import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import ru.testproject.blumental.artists.model.Model;
-import ru.testproject.blumental.artists.model.Utils;
 import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.other.App;
 import ru.testproject.blumental.artists.view.View;
@@ -24,78 +23,20 @@ import rx.Subscription;
  */
 public class ArtistActivityPresenterImpl extends BasePresenter implements ArtistActivityPresenter {
 
+    public static final int PAGE_SIZE = 30;
+
     @Inject
     Model model;
 
-    ArtistListActivity view;
+    private ArtistListActivity view;
 
-    @Override
-    public void loadFirstPage() {
-        List<Artist> artists = view.getPage(0);
-        Subscription pageDownloadSubscription = model.downloadPage(view.getContext(), artists)
-                .subscribe(new Subscriber<Integer>() {
-                    @Override
-                    public void onCompleted() {
-                        view.stopProgress();
-                        view.refresh();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        view.showToast(e.toString());
-                    }
-
-                    @Override
-                    public void onNext(Integer integer) {
-
-                    }
-                });
-
-        addSubscription(pageDownloadSubscription);
-    }
-
-    @Override
-    public void loadNextPage(int offset) {
-        final List<Artist> artists = view.getPage(offset);
-        Subscription pageDownloadSubscription = model.downloadPage(view.getContext(), artists)
-                .subscribe(new Subscriber<Integer>() {
-                    int newElementsCount = 0;
-
-                    @Override
-                    public void onCompleted() {
-                        view.onNewPageLoaded(newElementsCount);
-                        view.refresh();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        view.showToast(e.toString());
-                    }
-
-                    @Override
-                    public void onNext(Integer integer) {
-                        newElementsCount++;
-                    }
-                });
-
-        addSubscription(pageDownloadSubscription);
-    }
-
-    @Override
-    public Bitmap getThumbnailBitmap(int id) {
-        try {
-            File thumbnail = Utils.getThumbnail(view.getContext(), id);
-            return BitmapFactory.decodeFile(thumbnail.getAbsolutePath());
-        } catch (MalformedURLException e) {
-            view.showToast(e.toString());
-        }
-        return null;
-    }
+    private PageManager pageManager;
 
     @Override
     public void onCreate(View view) {
         App.getComponent().inject(this);
         this.view = (ArtistListActivity) view;
+        pageManager = new PageManagerImpl();
     }
 
     @Override
@@ -106,12 +47,50 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
     }
 
     @Override
+    public Bitmap getBitmap(String url, int position) {
+        Bitmap thumbnail = model.getThumbnail(url);
+
+        if (thumbnail == null) {
+            int i = pageManager.getPageForElement(position);
+
+            if (pageManager.isPageLoading(i)) {
+                return null;
+            }
+
+            pageManager.markPageAsLoading(i);
+            List<Integer> positions = pageManager.getPositionsForPage(i);
+            Subscription subscription = model.getPage(i, view.getUrls(positions))
+                    .subscribe(new Subscriber<Integer>() {
+                        @Override
+                        public void onCompleted() {
+                            view.refresh();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            view.showToast(e.toString());
+                        }
+
+                        @Override
+                        public void onNext(Integer integer) {
+                            pageManager.onPageLoaded(integer);
+                        }
+                    });
+
+            addSubscription(subscription);
+            return null;
+        }
+
+        return thumbnail;
+    }
+
+    @Override
     public void loadArtistList() {
         Subscription subscription = model.downloadArtistList()
                 .subscribe(new Subscriber<List<Artist>>() {
                     @Override
                     public void onCompleted() {
-                        loadFirstPage();
+                        view.stopProgress();
                     }
 
                     @Override
@@ -122,9 +101,65 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
                     @Override
                     public void onNext(List<Artist> artists) {
                         view.showArtists(artists);
+                        view.refresh();
                     }
                 });
 
         addSubscription(subscription);
+    }
+
+    interface PageManager {
+        /**
+         * Determines to which page the element belongs.
+         *
+         * @param position of the element in the adapter.
+         * @return page number.
+         */
+        int getPageForElement(int position);
+
+        boolean isPageLoading(int pageNumber);
+
+        void markPageAsLoading(int pageNumber);
+
+        void onPageLoaded(int pageNumber);
+
+        List<Integer> getPositionsForPage(int pageNumber);
+    }
+
+    class PageManagerImpl implements PageManager {
+        private Set<Integer> loadingPages;
+
+        public PageManagerImpl() {
+            this.loadingPages = new HashSet<>();
+        }
+
+        @Override
+        public int getPageForElement(int position) {
+            return position / PAGE_SIZE;
+        }
+
+        @Override
+        public boolean isPageLoading(int pageNumber) {
+            return loadingPages.contains(pageNumber);
+        }
+
+        @Override
+        public void markPageAsLoading(int pageNumber) {
+            loadingPages.add(pageNumber);
+        }
+
+        @Override
+        public void onPageLoaded(int pageNumber) {
+            loadingPages.remove(pageNumber);
+        }
+
+        @Override
+        public List<Integer> getPositionsForPage(int pageNumber) {
+            List<Integer> positions = new ArrayList<>();
+            for (int i = 0; i < PAGE_SIZE; i++) {
+                positions.add(PAGE_SIZE * pageNumber + i);
+            }
+            return positions;
+        }
     }
 }

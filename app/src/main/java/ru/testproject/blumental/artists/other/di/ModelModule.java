@@ -1,5 +1,8 @@
 package ru.testproject.blumental.artists.other.di;
 
+import android.graphics.Bitmap;
+import android.util.LruCache;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -27,5 +30,29 @@ public class ModelModule {
     @Singleton
     Scheduler getUiScheduler() {
         return AndroidSchedulers.mainThread();
+    }
+
+    @Provides
+    @Named("Small cover cache")
+    @Singleton
+    LruCache<String, Bitmap> getSmallCoverCache() {
+        return new LruCache<String, Bitmap>(20 * 1024 * 1024) {
+            @Override
+            protected int sizeOf(String key, Bitmap value) {
+                return value.getByteCount();
+            }
+        };
+    }
+
+    @Provides
+    @Named("Cover cache")
+    @Singleton
+    LruCache<String, Bitmap> getCoverCache() {
+        return new LruCache<String, Bitmap>(5 * 1024 * 1024) {
+            @Override
+            protected int sizeOf(String key, Bitmap value) {
+                return value.getByteCount();
+            }
+        };
     }
 }

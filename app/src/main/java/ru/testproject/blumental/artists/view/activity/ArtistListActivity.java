@@ -12,6 +12,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -54,16 +57,6 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
         artistList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ArtistListAdapter(this, presenter);
         artistList.setAdapter(adapter);
-        artistList.addOnScrollListener(new EndlessScrollListener() {
-            @Override
-            public boolean onLoadMore(int offset) {
-                if (adapter.needMoreElements()) {
-                    presenter.loadNextPage(offset);
-                    return true;
-                }
-                return false;
-            }
-        });
     }
 
     @Override
@@ -110,11 +103,6 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
     }
 
     @Override
-    public void onNewPageLoaded(int newElementsCount) {
-        adapter.addNewElements(newElementsCount);
-    }
-
-    @Override
     public void showArtists(List<Artist> artists) {
         adapter.setArtists(artists);
     }
@@ -125,12 +113,17 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
     }
 
     @Override
-    public List<Artist> getPage(int offset) {
-        return adapter.getPage(offset);
+    public void refresh() {
+        adapter.notifyDataSetChanged();
     }
 
     @Override
-    public void refresh() {
-        adapter.notifyDataSetChanged();
+    public List<URL> getUrls(List<Integer> positions) {
+        try {
+            return adapter.getUrls(positions);
+        } catch (MalformedURLException e) {
+            showToast(e.toString());
+            return new ArrayList<>();
+        }
     }
 }

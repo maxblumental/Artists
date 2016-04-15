@@ -8,8 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,21 +34,6 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
     private List<Artist> artists;
     private ArtistActivityPresenter presenter;
 
-    public final static int PAGE_SIZE = 30;
-    private int count = PAGE_SIZE;
-
-    private static final int NORMAL_TYPE = 0;
-    private static final int FOOTER_TYPE = 1;
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position + 1 == getItemCount()
-                && getItemCount() < artists.size()) {
-            return FOOTER_TYPE;
-        }
-        return NORMAL_TYPE;
-    }
-
     public void setArtists(List<Artist> artists) {
         this.artists = artists;
     }
@@ -57,17 +45,8 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
 
     @Override
     public int getItemCount() {
-        int realSize = artists == null ? 0 : artists.size();
-        return Math.min(count, realSize);
-    }
-
-    public boolean needMoreElements() {
-        int realSize = artists == null ? 0 : artists.size();
-        return count < realSize;
-    }
-
-    public void addNewElements(int newElementsCount) {
-        count = Math.min(count + newElementsCount, artists.size());
+        int size = artists == null ? 0 : artists.size();
+        return size;
     }
 
     @Override
@@ -75,22 +54,13 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
 
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
-        if (viewType == FOOTER_TYPE) {
-            View footer = inflater
-                    .inflate(R.layout.loading_new_item, parent, false);
-            return new ViewHolder(footer, FOOTER_TYPE);
-        }
-
         View view = inflater
                 .inflate(R.layout.artist_list_item, parent, false);
-        return new ViewHolder(view, NORMAL_TYPE);
+        return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (getItemViewType(position) == FOOTER_TYPE) {
-            return;
-        }
 
         Artist artist = artists.get(position);
 
@@ -105,13 +75,27 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
 
         holder.albumSongNumbers.setText(albumSongNumbers);
 
-        Bitmap bitmap = presenter.getThumbnailBitmap(artist.getId());
-        holder.thumbnail.setImageBitmap(bitmap);
+        Bitmap bitmap = presenter.getBitmap(artist.getCover().getSmall(), position);
+        if (bitmap == null) {
+            holder.thumbnail.setVisibility(View.GONE);
+            holder.progressBar.setVisibility(View.VISIBLE);
+        } else {
+            holder.progressBar.setVisibility(View.GONE);
+            holder.thumbnail.setVisibility(View.VISIBLE);
+            holder.thumbnail.setImageBitmap(bitmap);
+        }
     }
 
-    public List<Artist> getPage(int offset) {
-        int end = Math.min(offset + PAGE_SIZE, artists.size());
-        return new ArrayList<>(artists.subList(offset, end));
+    public List<URL> getUrls(List<Integer> positions) throws MalformedURLException {
+        List<URL> urls = new ArrayList<>();
+        for (Integer position : positions) {
+            if (position >= artists.size()) {
+                continue;
+            }
+            String urlString = artists.get(position).getCover().getSmall();
+            urls.add(new URL(urlString));
+        }
+        return urls;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -128,24 +112,24 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
         @Bind(R.id.albumSongNums)
         TextView albumSongNumbers;
 
-        public ViewHolder(final View itemView, int viewType) {
+        @Bind(R.id.progressBar)
+        ProgressBar progressBar;
+
+        public ViewHolder(final View itemView) {
             super(itemView);
-            if (viewType == NORMAL_TYPE) {
-                ButterKnife.bind(this, itemView);
-                itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, ArtistInfoActivity.class);
+            ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, ArtistInfoActivity.class);
 
-                        int id = ViewHolder.this.getAdapterPosition();
-                        Artist value = artists.get(id);
-                        intent.putExtra(ArtistInfoActivity.ARTIST_KEY, value);
+                    int id = ViewHolder.this.getAdapterPosition();
+                    Artist value = artists.get(id);
+                    intent.putExtra(ArtistInfoActivity.ARTIST_KEY, value);
 
-                        context.startActivity(intent);
-                    }
-                });
-            }
-
+                    context.startActivity(intent);
+                }
+            });
         }
     }
 }

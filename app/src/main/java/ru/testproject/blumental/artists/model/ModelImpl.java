@@ -2,14 +2,11 @@ package ru.testproject.blumental.artists.model;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.util.LruCache;
 
 import com.google.gson.Gson;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -41,6 +38,15 @@ public class ModelImpl implements Model {
     }
 
     @Inject
+    @Named("Small cover cache")
+    LruCache<String, Bitmap> smallCoverCache;
+
+    @Inject
+    @Named("Cover cache")
+    LruCache<String, Bitmap> coverCache;
+
+
+    @Inject
     @Named("IO Scheduler")
     Scheduler ioScheduler;
 
@@ -49,21 +55,26 @@ public class ModelImpl implements Model {
     Scheduler uiScheduler;
 
     @Override
-    public Observable<Integer> downloadPage(final Context context, final List<Artist> artists) {
+    public Bitmap getThumbnail(String url) {
+        return smallCoverCache.get(url);
+    }
+
+    @Override
+    public Observable<Integer> getPage(final int pageNumber, final List<URL> urls) {
         return Observable.create(new Observable.OnSubscribe<Integer>() {
             @Override
             public void call(Subscriber<? super Integer> subscriber) {
-                for (Artist artist : artists) {
-                    try {
-                        URL url = new URL(artist.getCover().getSmall());
-                        File thumbnail =
-                                Utils.getThumbnail(context, artist.getId());
-                        FileUtils.copyURLToFile(url, thumbnail);
-                        subscriber.onNext(1);
-                    } catch (IOException e) {
-                        Exceptions.propagate(e);
+                for (URL url : urls) {
+                    if (smallCoverCache.get(url.toString()) == null) {
+                        try {
+                            Bitmap bitmap = Utils.downloadCover(url);
+                            smallCoverCache.put(url.toString(), bitmap);
+                        } catch (IOException e) {
+                            Exceptions.propagate(e);
+                        }
                     }
                 }
+                subscriber.onNext(pageNumber);
                 subscriber.onCompleted();
             }
         })
@@ -111,10 +122,14 @@ public class ModelImpl implements Model {
             public void call(Subscriber<? super Bitmap> subscriber) {
                 try {
                     URL url = new URL(artist.getCover().getBig());
-                    File coverFile =
-                            Utils.getCoverFile(context, artist.getId());
-                    FileUtils.copyURLToFile(url, coverFile);
-                    subscriber.onNext(BitmapFactory.decodeFile(coverFile.getAbsolutePath()));
+                    Bitmap bitmap = coverCache.get(url.toString());
+
+                    if (bitmap == null) {
+                        bitmap = Utils.downloadCover(url);
+                        coverCache.put(url.toString(), bitmap);
+                    }
+
+                    subscriber.onNext(bitmap);
                     subscriber.onCompleted();
                 } catch (IOException e) {
                     Exceptions.propagate(e);

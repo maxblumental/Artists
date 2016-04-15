@@ -1,5 +1,6 @@
 package ru.testproject.blumental.artists.view.activity;
 
+import java.net.URL;
 import java.util.List;
 
 import ru.testproject.blumental.artists.model.data.Artist;
@@ -12,13 +13,11 @@ import ru.testproject.blumental.artists.view.View;
 public interface ArtistListView extends View {
     void stopProgress();
 
-    void onNewPageLoaded(int newElementsCount);
-
     void showArtists(List<Artist> artists);
 
     void showProgress();
 
-    List<Artist> getPage(int offset);
-
     void refresh();
+
+    List<URL> getUrls(List<Integer> positions);
 }
