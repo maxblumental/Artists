@@ -1,5 +1,6 @@
 package ru.testproject.blumental.artists.presenter;
 
+import ru.testproject.blumental.artists.model.ThumbnailDownloader;
 import ru.testproject.blumental.artists.view.View;
 
 /**
@@ -10,4 +11,5 @@ public interface Presenter {
     void onCreate(View view);
     void onResume();
     void onStop();
+    void onDestroy();
 }

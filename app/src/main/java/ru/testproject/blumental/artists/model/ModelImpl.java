@@ -19,6 +19,7 @@ import javax.inject.Named;
 
 import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.other.App;
+import ru.testproject.blumental.artists.view.adapter.ArtistListAdapter;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -38,13 +39,8 @@ public class ModelImpl implements Model {
     }
 
     @Inject
-    @Named("Small cover cache")
-    LruCache<String, Bitmap> smallCoverCache;
-
-    @Inject
     @Named("Cover cache")
     LruCache<String, Bitmap> coverCache;
-
 
     @Inject
     @Named("IO Scheduler")
@@ -54,32 +50,27 @@ public class ModelImpl implements Model {
     @Named("UI Scheduler")
     Scheduler uiScheduler;
 
+    @Inject
+    ThumbnailDownloader thumbnailDownloader;
+
     @Override
-    public Bitmap getThumbnail(String url) {
-        return smallCoverCache.get(url);
+    public void getThumbnail(ArtistListAdapter.ViewHolder holder, String url) {
+        thumbnailDownloader.queueThumbnail(holder, url);
     }
 
     @Override
-    public Observable<Integer> getPage(final int pageNumber, final List<URL> urls) {
-        return Observable.create(new Observable.OnSubscribe<Integer>() {
-            @Override
-            public void call(Subscriber<? super Integer> subscriber) {
-                for (URL url : urls) {
-                    if (smallCoverCache.get(url.toString()) == null) {
-                        try {
-                            Bitmap bitmap = Utils.downloadCover(url);
-                            smallCoverCache.put(url.toString(), bitmap);
-                        } catch (IOException e) {
-                            Exceptions.propagate(e);
-                        }
-                    }
-                }
-                subscriber.onNext(pageNumber);
-                subscriber.onCompleted();
-            }
-        })
-                .subscribeOn(ioScheduler)
-                .observeOn(uiScheduler);
+    public void initThumbnailDownloader(ThumbnailDownloader.DownloadListener listener) {
+        thumbnailDownloader.setListener(listener);
+        if (!thumbnailDownloader.isAlive()) {
+            thumbnailDownloader.start();
+        }
+        thumbnailDownloader.getLooper();
+    }
+
+    @Override
+    public void stopThumbnailDownloader() {
+        thumbnailDownloader.clearMessageQueue();
+        thumbnailDownloader.quit();
     }
 
     @Override

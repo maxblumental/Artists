@@ -22,11 +22,11 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import ru.testproject.blumental.artists.R;
+import ru.testproject.blumental.artists.model.ThumbnailDownloader;
 import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.other.App;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 import ru.testproject.blumental.artists.view.adapter.ArtistListAdapter;
-import ru.testproject.blumental.artists.view.adapter.EndlessScrollListener;
 
 public class ArtistListActivity extends AppCompatActivity implements ArtistListView {
 
@@ -52,11 +52,12 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
         setSupportActionBar(toolbar);
 
         App.getComponent().inject(this);
-        presenter.onCreate(this);
 
         artistList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ArtistListAdapter(this, presenter);
         artistList.setAdapter(adapter);
+
+        presenter.onCreate(this);
     }
 
     @Override
@@ -118,12 +119,18 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
     }
 
     @Override
-    public List<URL> getUrls(List<Integer> positions) {
-        try {
-            return adapter.getUrls(positions);
-        } catch (MalformedURLException e) {
-            showToast(e.toString());
-            return new ArrayList<>();
-        }
+    public boolean needElements() {
+        return adapter.getItemCount() == 0;
+    }
+
+    @Override
+    public ThumbnailDownloader.DownloadListener getDownloadListener() {
+        return adapter;
+    }
+
+    @Override
+    protected void onDestroy() {
+        presenter.onDestroy();
+        super.onDestroy();
     }
 }

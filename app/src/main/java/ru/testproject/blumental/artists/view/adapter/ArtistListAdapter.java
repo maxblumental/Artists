@@ -11,15 +11,13 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import ru.testproject.blumental.artists.R;
+import ru.testproject.blumental.artists.model.ThumbnailDownloader;
 import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 import ru.testproject.blumental.artists.view.activity.ArtistInfoActivity;
@@ -28,7 +26,8 @@ import ru.testproject.blumental.artists.view.activity.ArtistInfoActivity;
  * Created by Maxim Blumental on 3/24/2016.
  * bvmaks@gmail.com
  */
-public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.ViewHolder> {
+public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.ViewHolder>
+        implements ThumbnailDownloader.DownloadListener {
 
     private Context context;
     private List<Artist> artists;
@@ -75,30 +74,20 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
 
         holder.albumSongNumbers.setText(albumSongNumbers);
 
-        Bitmap bitmap = presenter.getBitmap(artist.getCover().getSmall(), position);
-        if (bitmap == null) {
-            holder.thumbnail.setVisibility(View.GONE);
-            holder.progressBar.setVisibility(View.VISIBLE);
-        } else {
-            holder.progressBar.setVisibility(View.GONE);
-            holder.thumbnail.setVisibility(View.VISIBLE);
-            holder.thumbnail.setImageBitmap(bitmap);
-        }
+        presenter.getBitmap(holder, artist.getCover().getSmall());
+        holder.thumbnail.setVisibility(View.GONE);
+        holder.progressBar.setVisibility(View.VISIBLE);
     }
 
-    public List<URL> getUrls(List<Integer> positions) throws MalformedURLException {
-        List<URL> urls = new ArrayList<>();
-        for (Integer position : positions) {
-            if (position >= artists.size()) {
-                continue;
-            }
-            String urlString = artists.get(position).getCover().getSmall();
-            urls.add(new URL(urlString));
-        }
-        return urls;
+    @Override
+    public void onThumbnailDownloaded(ViewHolder target, Bitmap bitmap) {
+        ViewHolder holder = target;
+        holder.progressBar.setVisibility(View.GONE);
+        holder.thumbnail.setVisibility(View.VISIBLE);
+        holder.thumbnail.setImageBitmap(bitmap);
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
         @Bind(R.id.thumbnail)
         ImageView thumbnail;

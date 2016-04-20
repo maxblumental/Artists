@@ -1,6 +1,7 @@
 package ru.testproject.blumental.artists.other.di;
 
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.util.LruCache;
 
 import javax.inject.Named;
@@ -8,6 +9,8 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import ru.testproject.blumental.artists.model.ThumbnailDownloader;
+import ru.testproject.blumental.artists.view.adapter.ArtistListAdapter;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -18,6 +21,13 @@ import rx.schedulers.Schedulers;
  */
 @Module
 public class ModelModule {
+
+    private Handler uiHandler;
+
+    public ModelModule(Handler uiHandler) {
+        this.uiHandler = uiHandler;
+    }
+
     @Provides
     @Named("IO Scheduler")
     @Singleton
@@ -54,5 +64,10 @@ public class ModelModule {
                 return value.getByteCount();
             }
         };
+    }
+
+    @Provides
+    ThumbnailDownloader getDownloader() {
+        return new ThumbnailDownloader(uiHandler);
     }
 }
