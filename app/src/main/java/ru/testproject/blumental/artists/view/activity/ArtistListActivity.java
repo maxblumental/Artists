@@ -2,6 +2,7 @@ package ru.testproject.blumental.artists.view.activity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,9 +13,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -22,13 +20,15 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import ru.testproject.blumental.artists.R;
-import ru.testproject.blumental.artists.model.ThumbnailDownloader;
 import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.other.App;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 import ru.testproject.blumental.artists.view.adapter.ArtistListAdapter;
+import ru.testproject.blumental.artists.view.fragment.RetainedFragment;
 
 public class ArtistListActivity extends AppCompatActivity implements ArtistListView {
+
+    private final static String RETAINED_FRAGMENT_TAG = "retained fragment tag";
 
     @Inject
     ArtistActivityPresenter presenter;
@@ -51,13 +51,30 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        App.getComponent().inject(this);
+
+        List<Artist> artists = null;
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        RetainedFragment fragment
+                = (RetainedFragment) fragmentManager.findFragmentByTag(RETAINED_FRAGMENT_TAG);
+        if (fragment == null) {
+            App.getComponent().inject(this);
+            fragment = new RetainedFragment();
+            fragmentManager.beginTransaction()
+                    .add(fragment, RETAINED_FRAGMENT_TAG)
+                    .commit();
+            presenter.onCreate(this);
+        } else {
+            presenter = (ArtistActivityPresenter) fragment.getPresenter();
+            artists = fragment.getArtists();
+        }
 
         artistList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ArtistListAdapter(this, presenter);
+        if (artists != null) {
+            adapter.setArtists(artists);
+            adapter.notifyDataSetChanged();
+        }
         artistList.setAdapter(adapter);
-
-        presenter.onCreate(this);
     }
 
     @Override
@@ -106,6 +123,7 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
     @Override
     public void showArtists(List<Artist> artists) {
         adapter.setArtists(artists);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -124,13 +142,15 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
     }
 
     @Override
-    public ThumbnailDownloader.DownloadListener getDownloadListener() {
-        return adapter;
-    }
-
-    @Override
     protected void onDestroy() {
         presenter.onDestroy();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        RetainedFragment fragment
+                = (RetainedFragment) fragmentManager.findFragmentByTag(RETAINED_FRAGMENT_TAG);
+        if (fragment != null) {
+            fragment.setArtists(adapter.getArtists());
+            fragment.setPresenter(presenter);
+        }
         super.onDestroy();
     }
 }

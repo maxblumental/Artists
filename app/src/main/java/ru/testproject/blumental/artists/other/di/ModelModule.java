@@ -10,7 +10,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import ru.testproject.blumental.artists.model.ThumbnailDownloader;
-import ru.testproject.blumental.artists.view.adapter.ArtistListAdapter;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -46,7 +45,7 @@ public class ModelModule {
     @Named("Small cover cache")
     @Singleton
     LruCache<String, Bitmap> getSmallCoverCache() {
-        return new LruCache<String, Bitmap>(20 * 1024 * 1024) {
+        return new LruCache<String, Bitmap>(10 * 1024 * 1024) {
             @Override
             protected int sizeOf(String key, Bitmap value) {
                 return value.getByteCount();

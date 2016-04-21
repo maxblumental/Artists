@@ -2,6 +2,7 @@ package ru.testproject.blumental.artists.model;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.util.LruCache;
 
 import com.google.gson.Gson;
@@ -60,17 +61,18 @@ public class ModelImpl implements Model {
 
     @Override
     public void initThumbnailDownloader(ThumbnailDownloader.DownloadListener listener) {
-        thumbnailDownloader.setListener(listener);
-        if (!thumbnailDownloader.isAlive()) {
-            thumbnailDownloader.start();
+        if (thumbnailDownloader.getState() != Thread.State.NEW) {
+            Handler handler = new Handler();
+            thumbnailDownloader = new ThumbnailDownloader(handler);
         }
+        thumbnailDownloader.setListener(listener);
+        thumbnailDownloader.start();
         thumbnailDownloader.getLooper();
     }
 
     @Override
     public void stopThumbnailDownloader() {
         thumbnailDownloader.clearMessageQueue();
-        thumbnailDownloader.quit();
     }
 
     @Override

@@ -21,6 +21,4 @@ public interface ArtistListView extends View {
     void refresh();
 
     boolean needElements();
-
-    ThumbnailDownloader.DownloadListener getDownloadListener();
 }

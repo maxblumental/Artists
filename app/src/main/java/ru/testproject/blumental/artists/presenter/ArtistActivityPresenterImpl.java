@@ -1,5 +1,7 @@
 package ru.testproject.blumental.artists.presenter;
 
+import android.graphics.Bitmap;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -29,9 +31,12 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
     public void onCreate(View view) {
         App.getComponent().inject(this);
         this.view = (ArtistListActivity) view;
-        ThumbnailDownloader.DownloadListener listener
-                = ((ArtistListActivity) view).getDownloadListener();
-        model.initThumbnailDownloader(listener);
+        model.initThumbnailDownloader(new ThumbnailDownloader.DownloadListener() {
+            @Override
+            public void onThumbnailDownloaded(ArtistListAdapter.ViewHolder target, Bitmap bitmap) {
+                target.setThumbnail(bitmap);
+            }
+        });
     }
 
     @Override

@@ -26,12 +26,15 @@ import ru.testproject.blumental.artists.view.activity.ArtistInfoActivity;
  * Created by Maxim Blumental on 3/24/2016.
  * bvmaks@gmail.com
  */
-public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.ViewHolder>
-        implements ThumbnailDownloader.DownloadListener {
+public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.ViewHolder> {
 
     private Context context;
     private List<Artist> artists;
     private ArtistActivityPresenter presenter;
+
+    public List<Artist> getArtists() {
+        return artists;
+    }
 
     public void setArtists(List<Artist> artists) {
         this.artists = artists;
@@ -79,14 +82,6 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
         holder.progressBar.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public void onThumbnailDownloaded(ViewHolder target, Bitmap bitmap) {
-        ViewHolder holder = target;
-        holder.progressBar.setVisibility(View.GONE);
-        holder.thumbnail.setVisibility(View.VISIBLE);
-        holder.thumbnail.setImageBitmap(bitmap);
-    }
-
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         @Bind(R.id.thumbnail)
@@ -119,6 +114,12 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
                     context.startActivity(intent);
                 }
             });
+        }
+
+        public void setThumbnail(Bitmap bitmap) {
+            progressBar.setVisibility(View.GONE);
+            thumbnail.setVisibility(View.VISIBLE);
+            thumbnail.setImageBitmap(bitmap);
         }
     }
 }
