@@ -1,7 +1,5 @@
 package ru.testproject.blumental.artists.presenter;
 
-import android.graphics.Bitmap;
-
 import ru.testproject.blumental.artists.model.data.Artist;
 
 /**
@@ -9,5 +7,5 @@ import ru.testproject.blumental.artists.model.data.Artist;
  * bvmaks@gmail.com
  */
 public interface ArtistInfoPresenter extends Presenter {
-    Bitmap getCoverBitmap(Artist artist);
+    void getCoverBitmap(Artist artist);
 }

@@ -1,6 +1,7 @@
 package ru.testproject.blumental.artists.presenter;
 
-import ru.testproject.blumental.artists.model.ThumbnailDownloader;
+import android.content.Context;
+
 import ru.testproject.blumental.artists.view.View;
 
 /**
@@ -8,7 +9,7 @@ import ru.testproject.blumental.artists.view.View;
  * bvmaks@gmail.com
  */
 public interface Presenter {
-    void onCreate();
+    void onCreate(Context context);
     void onResume();
     void onStop();
     void onDestroy();

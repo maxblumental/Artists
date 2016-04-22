@@ -60,11 +60,11 @@ public class ModelImpl implements Model {
     }
 
     @Override
-    public void initThumbnailDownloader(ThumbnailDownloader.DownloadListener listener) {
+    public void initThumbnailDownloader(Context context, ThumbnailDownloader.DownloadListener listener) {
         if (thumbnailDownloader.getState() != Thread.State.NEW) {
             App.getComponent().inject(this);
         }
-        thumbnailDownloader.setResponseHandler(new Handler());
+        thumbnailDownloader.init(context, new Handler());
         thumbnailDownloader.setListener(listener);
         thumbnailDownloader.start();
         thumbnailDownloader.getLooper();
@@ -118,7 +118,7 @@ public class ModelImpl implements Model {
                     Bitmap bitmap = coverCache.get(url.toString());
 
                     if (bitmap == null) {
-                        bitmap = Utils.downloadCover(url);
+                        bitmap = Utils.downloadCover(context, url, false);
                         coverCache.put(url.toString(), bitmap);
                     }
 

@@ -1,5 +1,6 @@
 package ru.testproject.blumental.artists.model;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -29,6 +30,7 @@ public class ThumbnailDownloader extends HandlerThread {
     private Handler requestHandler;
     private DownloadListener listener;
     private Handler responseHandler;
+    private Context context;
 
     @Inject
     @Named("Small cover cache")
@@ -39,8 +41,9 @@ public class ThumbnailDownloader extends HandlerThread {
         App.getComponent().inject(this);
     }
 
-    public void setResponseHandler(Handler responseHandler) {
+    public void init(Context context, Handler responseHandler) {
         this.responseHandler = responseHandler;
+        this.context = context;
     }
 
     public interface DownloadListener {
@@ -86,7 +89,7 @@ public class ThumbnailDownloader extends HandlerThread {
             Bitmap bitmap = smallCoverCache.get(url);
 
             if (bitmap == null) {
-                bitmap = Utils.downloadCover(new URL(url));
+                bitmap = Utils.downloadCover(context, new URL(url), true);
                 smallCoverCache.put(url, bitmap);
             }
 

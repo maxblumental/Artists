@@ -71,7 +71,7 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
             fragmentManager.beginTransaction()
                     .add(fragment, RETAINED_FRAGMENT_TAG)
                     .commit();
-            presenter.onCreate();
+            presenter.onCreate(this);
         } else {
             presenter = (ArtistActivityPresenter) fragment.getPresenter();
             artists = fragment.getArtists();

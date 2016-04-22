@@ -17,7 +17,7 @@ public interface Model {
 
     void getThumbnail(ArtistListAdapter.ViewHolder holder, String url);
 
-    void initThumbnailDownloader(ThumbnailDownloader.DownloadListener listener);
+    void initThumbnailDownloader(Context context, ThumbnailDownloader.DownloadListener listener);
 
     void stopThumbnailDownloader();
 

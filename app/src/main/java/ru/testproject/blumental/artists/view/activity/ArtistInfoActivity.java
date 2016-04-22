@@ -56,7 +56,7 @@ public class ArtistInfoActivity extends AppCompatActivity implements ArtistInfoV
         ButterKnife.bind(this);
 
         App.getComponent().inject(this);
-        presenter.onCreate();
+        presenter.onCreate(this);
         presenter.setView(this);
 
         Intent intent = getIntent();
@@ -73,12 +73,8 @@ public class ArtistInfoActivity extends AppCompatActivity implements ArtistInfoV
 
         setTitle(artist.getName());
 
-        Bitmap bitmap = presenter.getCoverBitmap(artist);
-        if (bitmap == null) {
-            progressBar.setVisibility(View.VISIBLE);
-        } else {
-            coverImageView.setImageBitmap(bitmap);
-        }
+        presenter.getCoverBitmap(artist);
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
