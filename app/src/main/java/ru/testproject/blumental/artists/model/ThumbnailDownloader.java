@@ -34,10 +34,13 @@ public class ThumbnailDownloader extends HandlerThread {
     @Named("Small cover cache")
     LruCache<String, Bitmap> smallCoverCache;
 
-    public ThumbnailDownloader(Handler uiHandler) {
+    public ThumbnailDownloader() {
         super(TAG);
-        responseHandler = uiHandler;
         App.getComponent().inject(this);
+    }
+
+    public void setResponseHandler(Handler responseHandler) {
+        this.responseHandler = responseHandler;
     }
 
     public interface DownloadListener {
@@ -95,7 +98,12 @@ public class ThumbnailDownloader extends HandlerThread {
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            responseHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onThumbnailDownloaded(target, null);
+                }
+            });
         }
     }
 

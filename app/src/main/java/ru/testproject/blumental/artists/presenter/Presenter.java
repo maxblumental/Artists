@@ -8,8 +8,9 @@ import ru.testproject.blumental.artists.view.View;
  * bvmaks@gmail.com
  */
 public interface Presenter {
-    void onCreate(View view);
+    void onCreate();
     void onResume();
     void onStop();
     void onDestroy();
+    void setView(View view);
 }

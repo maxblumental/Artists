@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import ru.testproject.blumental.artists.R;
 import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.other.App;
@@ -42,6 +44,14 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
     @Bind(R.id.progressBar)
     ProgressBar progressBar;
 
+    @Bind(R.id.no_internet_screen)
+    RelativeLayout noInternetScreen;
+
+    @OnClick(R.id.try_again_button)
+    public void tryAgain() {
+        presenter.loadArtistList();
+    }
+
     private ArtistListAdapter adapter;
 
     @Override
@@ -50,7 +60,6 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
-
 
         List<Artist> artists = null;
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -62,17 +71,17 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
             fragmentManager.beginTransaction()
                     .add(fragment, RETAINED_FRAGMENT_TAG)
                     .commit();
-            presenter.onCreate(this);
+            presenter.onCreate();
         } else {
             presenter = (ArtistActivityPresenter) fragment.getPresenter();
             artists = fragment.getArtists();
         }
+        presenter.setView(this);
 
         artistList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ArtistListAdapter(this, presenter);
         if (artists != null) {
-            adapter.setArtists(artists);
-            adapter.notifyDataSetChanged();
+            showArtists(artists);
         }
         artistList.setAdapter(adapter);
     }
@@ -128,6 +137,8 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
 
     @Override
     public void showProgress() {
+        noInternetScreen.setVisibility(View.GONE);
+        artistList.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
@@ -139,6 +150,13 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
     @Override
     public boolean needElements() {
         return adapter.getItemCount() == 0;
+    }
+
+    @Override
+    public void showNoInternetScreen() {
+        progressBar.setVisibility(View.GONE);
+        artistList.setVisibility(View.GONE);
+        noInternetScreen.setVisibility(View.VISIBLE);
     }
 
     @Override

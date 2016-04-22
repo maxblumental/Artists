@@ -27,10 +27,13 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
 
     private ArtistListActivity view;
 
-    @Override
-    public void onCreate(View view) {
-        App.getComponent().inject(this);
+    public void setView(View view) {
         this.view = (ArtistListActivity) view;
+    }
+
+    @Override
+    public void onCreate() {
+        App.getComponent().inject(this);
         model.initThumbnailDownloader(new ThumbnailDownloader.DownloadListener() {
             @Override
             public void onThumbnailDownloaded(ArtistListAdapter.ViewHolder target, Bitmap bitmap) {
@@ -42,7 +45,6 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
     @Override
     public void onResume() {
         if (view.needElements()) {
-            view.showProgress();
             loadArtistList();
         }
     }
@@ -54,6 +56,7 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
 
     @Override
     public void loadArtistList() {
+        view.showProgress();
         Subscription subscription = model.downloadArtistList()
                 .subscribe(new Subscriber<List<Artist>>() {
                     @Override
@@ -63,7 +66,7 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
 
                     @Override
                     public void onError(Throwable e) {
-                        view.showToast(e.toString());
+                        view.showNoInternetScreen();
                     }
 
                     @Override

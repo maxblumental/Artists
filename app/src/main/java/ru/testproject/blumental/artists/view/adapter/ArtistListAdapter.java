@@ -3,6 +3,7 @@ package ru.testproject.blumental.artists.view.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +18,6 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import ru.testproject.blumental.artists.R;
-import ru.testproject.blumental.artists.model.ThumbnailDownloader;
 import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 import ru.testproject.blumental.artists.view.activity.ArtistInfoActivity;
@@ -119,6 +119,10 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
         public void setThumbnail(Bitmap bitmap) {
             progressBar.setVisibility(View.GONE);
             thumbnail.setVisibility(View.VISIBLE);
+            if (bitmap == null) {
+                bitmap = BitmapFactory
+                        .decodeResource(context.getResources(), R.drawable.noconnection_cover);
+            }
             thumbnail.setImageBitmap(bitmap);
         }
     }

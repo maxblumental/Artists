@@ -10,7 +10,6 @@ import java.net.MalformedURLException;
 import javax.inject.Inject;
 
 import ru.testproject.blumental.artists.model.Model;
-import ru.testproject.blumental.artists.model.ThumbnailDownloader;
 import ru.testproject.blumental.artists.model.Utils;
 import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.other.App;
@@ -67,13 +66,17 @@ public class ArtistInfoPresenterImpl extends BasePresenter implements ArtistInfo
     }
 
     @Override
-    public void onCreate(View view) {
-        this.view = (ArtistInfoView) view;
+    public void onCreate() {
         App.getComponent().inject(this);
     }
 
     @Override
     public void onResume() {
 
+    }
+
+    @Override
+    public void setView(View view) {
+        this.view = (ArtistInfoView) view;
     }
 }

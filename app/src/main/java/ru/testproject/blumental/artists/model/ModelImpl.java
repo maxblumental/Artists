@@ -62,9 +62,9 @@ public class ModelImpl implements Model {
     @Override
     public void initThumbnailDownloader(ThumbnailDownloader.DownloadListener listener) {
         if (thumbnailDownloader.getState() != Thread.State.NEW) {
-            Handler handler = new Handler();
-            thumbnailDownloader = new ThumbnailDownloader(handler);
+            App.getComponent().inject(this);
         }
+        thumbnailDownloader.setResponseHandler(new Handler());
         thumbnailDownloader.setListener(listener);
         thumbnailDownloader.start();
         thumbnailDownloader.getLooper();
@@ -125,7 +125,7 @@ public class ModelImpl implements Model {
                     subscriber.onNext(bitmap);
                     subscriber.onCompleted();
                 } catch (IOException e) {
-                    Exceptions.propagate(e);
+                    subscriber.onNext(null);
                 }
             }
         })

@@ -4,4 +4,6 @@
     <string name="biography_title">Biography</string>
     <string name="numbers_in_info">%1$d albums  •  %2$d tracks</string>
     <string name="numbers_in_list">%1$s albums, %2$s tracks</string>
+    <string name="try_again">Try again</string>
+    <string name="no_internet_explanation">No Internet connection.</string>
 </resources>

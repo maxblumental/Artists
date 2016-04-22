@@ -1,7 +1,8 @@
 package ru.testproject.blumental.artists.other;
 
+import android.app.ActivityManager;
 import android.app.Application;
-import android.os.Handler;
+import android.os.Build;
 
 import ru.testproject.blumental.artists.other.di.AppComponent;
 import ru.testproject.blumental.artists.other.di.DaggerAppComponent;
@@ -23,10 +24,13 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Handler handler = new Handler();
-
+        long ramSize = getRamSize();
         component = DaggerAppComponent.builder()
-                .modelModule(new ModelModule(handler))
+                .modelModule(new ModelModule(ramSize))
                 .build();
+    }
+
+    private long getRamSize() {
+        return Runtime.getRuntime().maxMemory();
     }
 }

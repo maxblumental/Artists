@@ -1,7 +1,6 @@
 package ru.testproject.blumental.artists.other.di;
 
 import android.graphics.Bitmap;
-import android.os.Handler;
 import android.util.LruCache;
 
 import javax.inject.Named;
@@ -21,10 +20,10 @@ import rx.schedulers.Schedulers;
 @Module
 public class ModelModule {
 
-    private Handler uiHandler;
+    private long totalRamSize;
 
-    public ModelModule(Handler uiHandler) {
-        this.uiHandler = uiHandler;
+    public ModelModule(long totalRamSize) {
+        this.totalRamSize = totalRamSize;
     }
 
     @Provides
@@ -45,7 +44,7 @@ public class ModelModule {
     @Named("Small cover cache")
     @Singleton
     LruCache<String, Bitmap> getSmallCoverCache() {
-        return new LruCache<String, Bitmap>(10 * 1024 * 1024) {
+        return new LruCache<String, Bitmap>((int) (totalRamSize * 3 / 32)) {
             @Override
             protected int sizeOf(String key, Bitmap value) {
                 return value.getByteCount();
@@ -57,7 +56,7 @@ public class ModelModule {
     @Named("Cover cache")
     @Singleton
     LruCache<String, Bitmap> getCoverCache() {
-        return new LruCache<String, Bitmap>(5 * 1024 * 1024) {
+        return new LruCache<String, Bitmap>((int) (totalRamSize / 32)) {
             @Override
             protected int sizeOf(String key, Bitmap value) {
                 return value.getByteCount();
@@ -67,6 +66,6 @@ public class ModelModule {
 
     @Provides
     ThumbnailDownloader getDownloader() {
-        return new ThumbnailDownloader(uiHandler);
+        return new ThumbnailDownloader();
     }
 }

@@ -3,6 +3,7 @@ package ru.testproject.blumental.artists.view.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -55,7 +56,8 @@ public class ArtistInfoActivity extends AppCompatActivity implements ArtistInfoV
         ButterKnife.bind(this);
 
         App.getComponent().inject(this);
-        presenter.onCreate(this);
+        presenter.onCreate();
+        presenter.setView(this);
 
         Intent intent = getIntent();
         Artist artist = intent.getParcelableExtra(ARTIST_KEY);
@@ -81,6 +83,9 @@ public class ArtistInfoActivity extends AppCompatActivity implements ArtistInfoV
 
     @Override
     public void showCover(Bitmap bitmap) {
+        if (bitmap == null) {
+            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.noconnection_cover);
+        }
         coverImageView.setImageBitmap(bitmap);
         progressBar.setVisibility(View.GONE);
     }

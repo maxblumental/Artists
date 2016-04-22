@@ -21,4 +21,6 @@ public interface ArtistListView extends View {
     void refresh();
 
     boolean needElements();
+
+    void showNoInternetScreen();
 }
