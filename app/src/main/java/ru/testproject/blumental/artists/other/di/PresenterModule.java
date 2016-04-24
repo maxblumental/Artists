@@ -1,5 +1,7 @@
 package ru.testproject.blumental.artists.other.di;
 
+import android.util.Log;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -20,12 +22,14 @@ public class PresenterModule {
 
     @Provides
     CompositeSubscription getCompositeSubscription() {
+        Log.e("DI Presenter", "CompositeSubscription");
         return new CompositeSubscription();
     }
 
     @Provides
     @Singleton
     Model getModel() {
+        Log.e("DI Presenter", "Model");
         return new ModelImpl();
     }
 }

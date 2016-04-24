@@ -35,7 +35,7 @@ public interface Model {
      * Remove all queued requests
      * in the thumbnail downloader.
      */
-    void stopThumbnailDownloader();
+    void stopThumbnailDownloader(boolean isFinishing);
 
     /**
      * Download the JSON with artists.
@@ -46,4 +46,6 @@ public interface Model {
      * Get big cover for the specified artist object.
      */
     Observable<Bitmap> downloadCover(Context context, Artist artist);
+
+    void initThumbnailDownloaderContext(Context context);
 }

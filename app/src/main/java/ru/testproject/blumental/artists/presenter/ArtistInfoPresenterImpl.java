@@ -3,6 +3,8 @@ package ru.testproject.blumental.artists.presenter;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import java.lang.ref.WeakReference;
+
 import javax.inject.Inject;
 
 import ru.testproject.blumental.artists.model.Model;
@@ -22,12 +24,12 @@ public class ArtistInfoPresenterImpl extends BasePresenter implements ArtistInfo
     @Inject
     Model model;
 
-    private ArtistInfoView view;
+    private WeakReference<ArtistInfoView> view;
 
     @Override
 
     public void getCoverBitmap(Artist artist) {
-        Context context = view.getContext();
+        Context context = view.get().getContext();
 
         Subscription subscription = model.downloadCover(context, artist)
                 .subscribe(new Subscriber<Bitmap>() {
@@ -38,12 +40,12 @@ public class ArtistInfoPresenterImpl extends BasePresenter implements ArtistInfo
 
                     @Override
                     public void onError(Throwable e) {
-                        view.showToast(e.toString());
+                        view.get().showToast(e.toString());
                     }
 
                     @Override
                     public void onNext(Bitmap bitmap) {
-                        view.showCover(bitmap);
+                        view.get().showCover(bitmap);
                     }
                 });
 
@@ -52,16 +54,12 @@ public class ArtistInfoPresenterImpl extends BasePresenter implements ArtistInfo
 
     @Override
     public void onCreate(Context context) {
+        super.onCreate(context);
         App.getComponent().inject(this);
     }
 
     @Override
-    public void onResume() {
-
-    }
-
-    @Override
     public void setView(View view) {
-        this.view = (ArtistInfoView) view;
+        this.view = new WeakReference<>((ArtistInfoView) view);
     }
 }

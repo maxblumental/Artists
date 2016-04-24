@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,9 +32,9 @@ import ru.testproject.blumental.artists.view.activity.ArtistInfoActivity;
  */
 public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.ViewHolder> {
 
-    private Context context;
+    private WeakReference<Context> context;
     private List<Artist> artists;
-    private ArtistActivityPresenter presenter;
+    private WeakReference<ArtistActivityPresenter> presenter;
 
     public List<Artist> getArtists() {
         return artists;
@@ -44,8 +45,8 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
     }
 
     public ArtistListAdapter(Context context, ArtistActivityPresenter presenter) {
-        this.context = context;
-        this.presenter = presenter;
+        this.context = new WeakReference<>(context);
+        this.presenter = new WeakReference<>(presenter);
     }
 
     @Override
@@ -74,12 +75,14 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
         String text = Arrays.toString(genres);
         holder.genres.setText(text.substring(1, text.length() - 1));
 
-        String albumSongNumbers = String.format(context.getString(R.string.numbers_in_list),
+        String albumSongNumbers = String.format(context.get().getString(R.string.numbers_in_list),
                 artist.getAlbums(), artist.getTracks());
 
         holder.albumSongNumbers.setText(albumSongNumbers);
 
-        presenter.getBitmap(holder, artist.getCover().getSmall());
+        if (presenter != null) {
+            presenter.get().getBitmap(holder, artist.getCover().getSmall());
+        }
         holder.thumbnail.setVisibility(View.GONE);
         holder.progressBar.setVisibility(View.VISIBLE);
     }
@@ -110,13 +113,13 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, ArtistInfoActivity.class);
+                    Intent intent = new Intent(context.get(), ArtistInfoActivity.class);
 
                     int id = ViewHolder.this.getAdapterPosition();
                     Artist value = artists.get(id);
                     intent.putExtra(ArtistInfoActivity.ARTIST_KEY, value);
 
-                    context.startActivity(intent);
+                    context.get().startActivity(intent);
                 }
             });
         }
@@ -126,7 +129,7 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
             thumbnail.setVisibility(View.VISIBLE);
             if (bitmap == null) {
                 bitmap = BitmapFactory
-                        .decodeResource(context.getResources(), R.drawable.noconnection_cover);
+                        .decodeResource(context.get().getResources(), R.drawable.noconnection_cover);
             }
             thumbnail.setImageBitmap(bitmap);
         }

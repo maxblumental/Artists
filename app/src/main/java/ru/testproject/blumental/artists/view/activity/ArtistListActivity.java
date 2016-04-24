@@ -77,6 +77,7 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
             presenter.onCreate(this);
         } else {
             presenter = (ArtistActivityPresenter) fragment.getPresenter();
+            presenter.initDownloaderContext(this);
             artists = fragment.getArtists();
         }
         presenter.setView(this);
@@ -148,7 +149,7 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
 
     @Override
     protected void onDestroy() {
-        presenter.onDestroy();
+        presenter.onDestroy(isFinishing());
         FragmentManager fragmentManager = getSupportFragmentManager();
         RetainedFragment fragment
                 = (RetainedFragment) fragmentManager.findFragmentByTag(RETAINED_FRAGMENT_TAG);
@@ -156,6 +157,9 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
             fragment.setArtists(adapter.getArtists());
             fragment.setPresenter(presenter);
         }
+        adapter.setArtists(null);
+        presenter.setView(null);
+        presenter = null;
         super.onDestroy();
     }
 }

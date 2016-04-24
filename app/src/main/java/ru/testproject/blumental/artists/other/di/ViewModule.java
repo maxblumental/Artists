@@ -1,5 +1,7 @@
 package ru.testproject.blumental.artists.other.di;
 
+import android.util.Log;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -21,12 +23,14 @@ public class ViewModule {
     @Provides
     @Singleton
     ArtistActivityPresenter getArtistActivityPresenter() {
+        Log.e("DI View", "ArtistActivityPresenter");
         return new ArtistActivityPresenterImpl();
     }
 
     @Provides
     @Singleton
     ArtistInfoPresenter getArtistInfoPresenter() {
+        Log.e("DI View", "ArtistInfoPresenter");
         return new ArtistInfoPresenterImpl();
     }
 }

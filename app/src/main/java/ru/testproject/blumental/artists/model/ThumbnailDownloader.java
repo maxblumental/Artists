@@ -5,9 +5,11 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.util.Log;
 import android.util.LruCache;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,7 +37,7 @@ public class ThumbnailDownloader extends HandlerThread {
     private Handler requestHandler;
     private DownloadListener listener;
     private Handler responseHandler;
-    private Context context;
+    private WeakReference<Context> context;
 
     @Inject
     @Named("Small cover cache")
@@ -43,13 +45,18 @@ public class ThumbnailDownloader extends HandlerThread {
 
     public ThumbnailDownloader() {
         super(TAG);
+        Log.e("MVP", "ThumbnailDownloader()");
         App.getComponent().inject(this);
     }
 
     // set context and UI thread handler
     public void init(Context context, Handler responseHandler) {
         this.responseHandler = responseHandler;
-        this.context = context;
+        this.context = new WeakReference<>(context);
+    }
+
+    public void setContext(Context context) {
+        this.context = new WeakReference<>(context);
     }
 
     public interface DownloadListener {
@@ -97,7 +104,7 @@ public class ThumbnailDownloader extends HandlerThread {
             Bitmap bitmap = smallCoverCache.get(url);
 
             if (bitmap == null) {
-                bitmap = Utils.downloadCover(context, new URL(url), true);
+                bitmap = Utils.downloadCover(context.get(), new URL(url), true);
                 smallCoverCache.put(url, bitmap);
             }
 

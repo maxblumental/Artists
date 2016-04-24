@@ -3,6 +3,7 @@ package ru.testproject.blumental.artists.presenter;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -26,14 +27,15 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
     @Inject
     Model model;
 
-    private ArtistListActivity view;
+    private WeakReference<ArtistListActivity> view;
 
     public void setView(View view) {
-        this.view = (ArtistListActivity) view;
+        this.view = new WeakReference<>((ArtistListActivity) view);
     }
 
     @Override
     public void onCreate(Context context) {
+        super.onCreate(context);
         App.getComponent().inject(this);
         model.initThumbnailDownloader(context,
                 new ThumbnailDownloader.DownloadListener() {
@@ -47,7 +49,8 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
 
     @Override
     public void onResume() {
-        if (view.needElements()) {
+        super.onResume();
+        if (view.get().needElements()) {
             loadArtistList();
         }
     }
@@ -59,22 +62,22 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
 
     @Override
     public void loadArtistList() {
-        view.showProgress();
+        view.get().showProgress();
         Subscription subscription = model.downloadArtistList()
                 .subscribe(new Subscriber<List<Artist>>() {
                     @Override
                     public void onCompleted() {
-                        view.stopProgress();
+                        view.get().stopProgress();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        view.showNoInternetScreen();
+                        view.get().showNoInternetScreen();
                     }
 
                     @Override
                     public void onNext(List<Artist> artists) {
-                        view.showArtists(artists);
+                        view.get().showArtists(artists);
                     }
                 });
 
@@ -82,7 +85,13 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
     }
 
     @Override
-    public void onDestroy() {
-        model.stopThumbnailDownloader();
+    public void initDownloaderContext(Context context) {
+        model.initThumbnailDownloaderContext(context);
+    }
+
+    @Override
+    public void onDestroy(boolean isFinishing) {
+        super.onDestroy(isFinishing);
+        model.stopThumbnailDownloader(isFinishing);
     }
 }

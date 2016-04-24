@@ -3,6 +3,7 @@ package ru.testproject.blumental.artists.model;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.util.Log;
 import android.util.LruCache;
 
 import com.google.gson.Gson;
@@ -36,6 +37,7 @@ public class ModelImpl implements Model {
             "download.cdn.yandex.net/mobilization-2016/artists.json";
 
     public ModelImpl() {
+        Log.e("MVP", "Model()");
         App.getComponent().inject(this);
     }
 
@@ -61,8 +63,10 @@ public class ModelImpl implements Model {
 
     @Override
     public void initThumbnailDownloader(Context context, ThumbnailDownloader.DownloadListener listener) {
+        Log.i("MVP Model", "initThumbnailDownloader()");
         if (thumbnailDownloader.getState() != Thread.State.NEW) {
             App.getComponent().inject(this);
+            thumbnailDownloader.setContext(context);
         }
         thumbnailDownloader.init(context, new Handler());
         thumbnailDownloader.setListener(listener);
@@ -71,8 +75,12 @@ public class ModelImpl implements Model {
     }
 
     @Override
-    public void stopThumbnailDownloader() {
+    public void stopThumbnailDownloader(boolean isFinishing) {
+        Log.i("MVP Model", "stopThumbnailDownloader()");
         thumbnailDownloader.clearMessageQueue();
+        if (isFinishing) {
+            thumbnailDownloader.quit();
+        }
     }
 
     @Override
@@ -131,5 +139,10 @@ public class ModelImpl implements Model {
         })
                 .subscribeOn(ioScheduler)
                 .observeOn(uiScheduler);
+    }
+
+    @Override
+    public void initThumbnailDownloaderContext(Context context) {
+        thumbnailDownloader.setContext(context);
     }
 }

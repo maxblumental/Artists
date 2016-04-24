@@ -21,7 +21,7 @@ public interface Presenter {
 
     void onStop();
 
-    void onDestroy();
+    void onDestroy(boolean isFinishing);
 
     void setView(View view);
 }
