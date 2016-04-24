@@ -62,6 +62,15 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<ArtistList
     public void testPreservePositionAfterRotation() {
         RecyclerView view = (RecyclerView) solo.getView(R.id.artist_list);
         LinearLayoutManager layoutManager = (LinearLayoutManager) view.getLayoutManager();
+
+        final ProgressBar progressBar = (ProgressBar) solo.getView(R.id.progressBar);
+        solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return progressBar.getVisibility() == View.GONE;
+            }
+        }, 60_000);
+
         solo.scrollRecyclerViewToBottom(0);
 
         solo.setActivityOrientation(Solo.PORTRAIT);
