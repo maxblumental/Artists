@@ -5,6 +5,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 /**
+ * Shows a picture of a note
+ * when the artist list activity
+ * is preparing.
+ * <p/>
  * Created by Maxim Blumental on 4/7/2016.
  * bvmaks@gmail.com
  */

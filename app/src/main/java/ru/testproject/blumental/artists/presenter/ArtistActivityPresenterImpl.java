@@ -75,7 +75,6 @@ public class ArtistActivityPresenterImpl extends BasePresenter implements Artist
                     @Override
                     public void onNext(List<Artist> artists) {
                         view.showArtists(artists);
-                        view.refresh();
                     }
                 });
 

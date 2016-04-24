@@ -25,6 +25,7 @@ public class ArtistInfoPresenterImpl extends BasePresenter implements ArtistInfo
     private ArtistInfoView view;
 
     @Override
+
     public void getCoverBitmap(Artist artist) {
         Context context = view.getContext();
 

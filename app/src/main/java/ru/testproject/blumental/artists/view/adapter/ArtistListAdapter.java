@@ -23,6 +23,9 @@ import ru.testproject.blumental.artists.presenter.ArtistActivityPresenter;
 import ru.testproject.blumental.artists.view.activity.ArtistInfoActivity;
 
 /**
+ * Adapter providing elements
+ * for the list of artists.
+ * <p/>
  * Created by Maxim Blumental on 3/24/2016.
  * bvmaks@gmail.com
  */
@@ -47,8 +50,7 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
 
     @Override
     public int getItemCount() {
-        int size = artists == null ? 0 : artists.size();
-        return size;
+        return artists == null ? 0 : artists.size();
     }
 
     @Override
@@ -102,6 +104,9 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Vi
         public ViewHolder(final View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+
+            // Switch to detailed info about an artist
+            // when according list item is clicked.
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

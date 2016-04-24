@@ -10,6 +10,9 @@ import ru.testproject.blumental.artists.presenter.ArtistInfoPresenter;
 import ru.testproject.blumental.artists.presenter.ArtistInfoPresenterImpl;
 
 /**
+ * Module for injecting dependencies
+ * of View layer classes of MVP.
+ * <p/>
  * Created by Maxim Blumental on 3/30/2016.
  * bvmaks@gmail.com
  */

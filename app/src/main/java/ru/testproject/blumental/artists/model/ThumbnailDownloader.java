@@ -19,6 +19,11 @@ import ru.testproject.blumental.artists.other.App;
 import ru.testproject.blumental.artists.view.adapter.ArtistListAdapter;
 
 /**
+ * A message queue on a background thread
+ * for downloading thumbnails.
+ * It accepts requests in the form of
+ * queueThumbnail() method call.
+ * <p/>
  * Created by Maxim Blumental on 4/20/2016.
  * bvmaks@gmail.com
  */
@@ -41,6 +46,7 @@ public class ThumbnailDownloader extends HandlerThread {
         App.getComponent().inject(this);
     }
 
+    // set context and UI thread handler
     public void init(Context context, Handler responseHandler) {
         this.responseHandler = responseHandler;
         this.context = context;
@@ -67,6 +73,8 @@ public class ThumbnailDownloader extends HandlerThread {
     @Override
     protected void onLooperPrepared() {
         super.onLooperPrepared();
+        // there's no issue with leaking handler
+        // since it lives on a background thread
         requestHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {

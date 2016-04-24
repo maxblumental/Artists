@@ -16,12 +16,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
+ * Utility class with methods
+ * for downloading and sampled decoding images.
+ * <p/>
  * Created by Maxim Blumental on 3/30/2016.
  * bvmaks@gmail.com
  */
 public class Utils {
 
-    public static Bitmap downloadCover(Context context, URL url, boolean thumbnail) throws IOException {
+    public static Bitmap downloadCover(Context context, URL url, boolean isThumbnail) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
         if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
@@ -44,23 +47,22 @@ public class Utils {
             bytes = outputStream.toByteArray();
 
             Bitmap bitmap;
-            if (context != null) {
-                Resources r = context.getResources();
-                int size;
-                if (thumbnail) {
-                    size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                            108, r.getDisplayMetrics());
-                } else {
-                    WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-                    Display display = wm.getDefaultDisplay();
-                    Point point = new Point();
-                    display.getSize(point);
-                    size = point.x;
-                }
-                bitmap = decodeSampledBitmapFromByteArray(bytes, size, size);
+            Resources r = context.getResources();
+            int size;
+            // If the image is a thumbnail, take its size for sampling from resources.
+            // Otherwise make as wide as the screen of the device.
+            if (isThumbnail) {
+                size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                        108, r.getDisplayMetrics());
             } else {
-                bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+                Display display = wm.getDefaultDisplay();
+                Point point = new Point();
+                display.getSize(point);
+                size = point.x;
             }
+
+            bitmap = decodeSampledBitmapFromByteArray(bytes, size, size);
 
             return bitmap;
         } finally {
@@ -76,7 +78,6 @@ public class Utils {
 
     public static Bitmap decodeSampledBitmapFromByteArray(byte[] array,
                                                           int reqWidth, int reqHeight) {
-
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;

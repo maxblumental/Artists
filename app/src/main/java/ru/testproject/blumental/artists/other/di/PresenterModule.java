@@ -9,6 +9,9 @@ import ru.testproject.blumental.artists.model.ModelImpl;
 import rx.subscriptions.CompositeSubscription;
 
 /**
+ * Module for injecting dependencies
+ * of Presenter layer classes of MVP.
+ * <p/>
  * Created by Maxim Blumental on 3/30/2016.
  * bvmaks@gmail.com
  */

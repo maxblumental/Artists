@@ -9,6 +9,10 @@ import ru.testproject.blumental.artists.model.data.Artist;
 import ru.testproject.blumental.artists.presenter.Presenter;
 
 /**
+ * Fragment for storing objects that
+ * need to survive configuration changes:
+ * presenter and loaded artist list.
+ * <p/>
  * Created by Maxim Blumental on 4/21/2016.
  * bvmaks@gmail.com
  */

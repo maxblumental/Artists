@@ -7,8 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -65,6 +63,11 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
         FragmentManager fragmentManager = getSupportFragmentManager();
         RetainedFragment fragment
                 = (RetainedFragment) fragmentManager.findFragmentByTag(RETAINED_FRAGMENT_TAG);
+
+        // If there's a saved fragment
+        // pull the presenter and the artist list
+        // from there. Otherwise inject everything
+        // and load JSON.
         if (fragment == null) {
             App.getComponent().inject(this);
             fragment = new RetainedFragment();
@@ -99,22 +102,6 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public Context getContext() {
         return this;
     }
@@ -143,15 +130,15 @@ public class ArtistListActivity extends AppCompatActivity implements ArtistListV
     }
 
     @Override
-    public void refresh() {
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
     public boolean needElements() {
         return adapter.getItemCount() == 0;
     }
 
+    /**
+     * Store presenter and artist list
+     * in the retained fragment
+     * when the activity is destroyed.
+     */
     @Override
     public void showNoInternetScreen() {
         progressBar.setVisibility(View.GONE);
